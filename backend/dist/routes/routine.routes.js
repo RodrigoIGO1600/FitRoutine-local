@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.routineRoutes = void 0;
+const express_1 = require("express");
+const routine_controller_js_1 = require("../controllers/routine.controller.js");
+exports.routineRoutes = (0, express_1.Router)();
+exports.routineRoutes.get("/", routine_controller_js_1.getRoutinesController);
+exports.routineRoutes.post("/", routine_controller_js_1.createRoutineController);
+exports.routineRoutes.get("/:id", routine_controller_js_1.getRoutineByIdController);
+exports.routineRoutes.put("/:id", routine_controller_js_1.updateRoutineController);
+exports.routineRoutes.delete("/:id", routine_controller_js_1.deleteRoutineController);
