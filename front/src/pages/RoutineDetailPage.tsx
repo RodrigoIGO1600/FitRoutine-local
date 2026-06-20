@@ -1,6 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { addExerciseToRoutine } from "../api/routineExerciseApi";
+import {
+  addExerciseToRoutine,
+  deleteRoutineExercise,
+} from "../api/routineExerciseApi";
 import { getRoutineById, updateRoutine } from "../api/routineApi";
 import { AddExerciseSheet } from "../components/AddExerciseSheet";
 import { RoutineExerciseRow } from "../components/RoutineExerciseRow";
@@ -12,6 +15,8 @@ import "./RoutineDetailPage.css";
 const DEFAULT_SETS = 3;
 const DEFAULT_REPS = 10;
 const DEFAULT_REST_SECONDS = 90;
+
+let tempIdCounter = -1;
 
 export function RoutineDetailPage() {
   const { id } = useParams();
@@ -25,18 +30,24 @@ export function RoutineDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [isAddingExercise, setIsAddingExercise] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
+  const savedExerciseIdsRef = useRef<Set<number>>(new Set());
+
   const isDirty = useMemo(() => {
-    if (!routine) {
-      return false;
-    }
+    if (!routine) return false;
 
     const savedDescription = routine.description ?? "";
+    const metaChanged = name !== routine.name || description !== savedDescription;
 
-    return name !== routine.name || description !== savedDescription;
-  }, [routine, name, description]);
+    const currentIds = new Set(exercises.map((e) => e.id));
+    const hasNewExercises = exercises.some((e) => e.id < 0);
+    const hasDeletedExercises = [...savedExerciseIdsRef.current].some(
+      (id) => !currentIds.has(id)
+    );
+
+    return metaChanged || hasNewExercises || hasDeletedExercises;
+  }, [routine, name, description, exercises]);
 
   const loadRoutine = useCallback(async () => {
     if (Number.isNaN(routineId)) {
@@ -53,6 +64,7 @@ export function RoutineDetailPage() {
       setExercises(result.exercises);
       setName(result.name);
       setDescription(result.description ?? "");
+      savedExerciseIdsRef.current = new Set(result.exercises.map((e) => e.id));
     } catch {
       setError("No se pudo cargar la rutina");
     } finally {
@@ -66,22 +78,47 @@ export function RoutineDetailPage() {
 
   function handleDiscard() {
     if (!routine) {
-      navigate("/");
+      navigate(`/routines/${routineId}`);
       return;
     }
 
     setName(routine.name);
     setDescription(routine.description ?? "");
-    navigate("/");
+    navigate(`/routines/${routineId}`);
+  }
+
+  function handleAddExercise(exercise: Exercise) {
+    const tempId = tempIdCounter--;
+    const newRoutineExercise: RoutineExercise = {
+      id: tempId,
+      routineId,
+      exerciseId: exercise.id,
+      sets: DEFAULT_SETS,
+      reps: DEFAULT_REPS,
+      weight: null,
+      restSeconds: DEFAULT_REST_SECONDS,
+      order: exercises.length + 1,
+      notes: null,
+      exercise,
+    };
+
+    setExercises((current) => [...current, newRoutineExercise]);
+  }
+
+  function handleRemoveExercise(exerciseRowId: number) {
+    setExercises((current) => current.filter((e) => e.id !== exerciseRowId));
+  }
+
+  function handleDeselectExercise(exercise: Exercise) {
+    setExercises((current) =>
+      current.filter((e) => e.exerciseId !== exercise.id)
+    );
   }
 
   async function handleSave() {
-    if (!routine || !isDirty) {
-      return;
-    }
+    if (!routine || !isDirty) return;
 
     const trimmedName = name.trim();
-
     if (!trimmedName) {
       setError("El nombre es obligatorio");
       return;
@@ -91,55 +128,71 @@ export function RoutineDetailPage() {
     setError(null);
 
     try {
-      const updated = await updateRoutine(routine.id, {
-        name: trimmedName,
-        description: description.trim() || null,
+      const savedDescription = routine.description ?? "";
+      const metaChanged =
+        trimmedName !== routine.name ||
+        description.trim() !== savedDescription;
+
+      if (metaChanged) {
+        const updated = await updateRoutine(routine.id, {
+          name: trimmedName,
+          description: description.trim() || null,
+        });
+
+        setRoutine((current) =>
+          current
+            ? {
+                ...current,
+                name: updated.name,
+                description: updated.description,
+                updatedAt: updated.updatedAt,
+              }
+            : current
+        );
+        setName(updated.name);
+        setDescription(updated.description ?? "");
+      }
+
+      const currentIds = new Set(exercises.map((e) => e.id));
+
+      const toDelete = [...savedExerciseIdsRef.current].filter(
+        (id) => !currentIds.has(id)
+      );
+      for (const reId of toDelete) {
+        await deleteRoutineExercise(reId);
+      }
+
+      const toAdd = exercises.filter((e) => e.id < 0);
+      const addedExercises: RoutineExercise[] = [];
+      for (const pending of toAdd) {
+        const saved = await addExerciseToRoutine(routine.id, {
+          exerciseId: pending.exerciseId,
+          sets: pending.sets,
+          reps: pending.reps,
+          weight: pending.weight,
+          restSeconds: pending.restSeconds,
+          order: pending.order,
+        });
+        addedExercises.push(saved);
+      }
+
+      const finalExercises = exercises.map((e) => {
+        if (e.id < 0) {
+          const saved = addedExercises.find(
+            (s) => s.exerciseId === e.exerciseId && s.order === e.order
+          );
+          return saved ?? e;
+        }
+        return e;
       });
 
-      setRoutine((current) =>
-        current
-          ? {
-              ...current,
-              name: updated.name,
-              description: updated.description,
-              updatedAt: updated.updatedAt,
-            }
-          : current
-      );
-      setName(updated.name);
-      setDescription(updated.description ?? "");
+      setExercises(finalExercises);
+      savedExerciseIdsRef.current = new Set(finalExercises.map((e) => e.id));
     } catch {
-      setError("No se pudo guardar la rutina");
+      setError("No se pudo guardar los cambios");
     } finally {
       setIsSaving(false);
-    }
-  }
-
-  async function handleAddExercise(exercise: Exercise) {
-    if (!routine) {
-      return;
-    }
-
-    setIsAddingExercise(true);
-    setError(null);
-
-    try {
-      const routineExercise = await addExerciseToRoutine(routine.id, {
-        exerciseId: exercise.id,
-        sets: DEFAULT_SETS,
-        reps: DEFAULT_REPS,
-        restSeconds: DEFAULT_REST_SECONDS,
-        order: exercises.length + 1,
-      });
-
-      setExercises((current) =>
-        [...current, routineExercise].sort((a, b) => a.order - b.order)
-      );
-      setIsSheetOpen(false);
-    } catch {
-      setError("No se pudo añadir el ejercicio");
-    } finally {
-      setIsAddingExercise(false);
+      navigate(`/routines/${routine.id}`);
     }
   }
 
@@ -243,7 +296,10 @@ export function RoutineDetailPage() {
           <ul className="routine-detail__exercises">
             {exercises.map((routineExercise) => (
               <li key={routineExercise.id}>
-                <RoutineExerciseRow routineExercise={routineExercise} />
+                <RoutineExerciseRow
+                  routineExercise={routineExercise}
+                  onRemove={() => handleRemoveExercise(routineExercise.id)}
+                />
               </li>
             ))}
           </ul>
@@ -255,7 +311,6 @@ export function RoutineDetailPage() {
           type="button"
           className="routine-detail__dock-action"
           onClick={() => setIsSheetOpen(true)}
-          disabled={isAddingExercise}
         >
           <span className="routine-detail__dock-icon" aria-hidden="true">
             +
@@ -266,10 +321,11 @@ export function RoutineDetailPage() {
 
       <AddExerciseSheet
         isOpen={isSheetOpen}
-        isSubmitting={isAddingExercise}
+        isSubmitting={false}
         existingExerciseIds={exercises.map((item) => item.exerciseId)}
         onClose={() => setIsSheetOpen(false)}
         onSelect={handleAddExercise}
+        onDeselect={handleDeselectExercise}
       />
     </div>
   );

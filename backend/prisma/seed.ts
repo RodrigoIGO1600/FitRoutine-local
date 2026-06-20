@@ -22,6 +22,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "shoulders",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=rO_iEImwHyo",
         description: "Shoulder strength exercise.",
       },
       {
@@ -29,6 +30,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "shoulders",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=MZdT1-Bv9Dg",
         description: "Shoulder strength exercise.",
       },
       {
@@ -36,6 +38,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "shoulders",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=M2rwvNhTOu0",
         description: "Shoulder strength exercise.",
       },
       {
@@ -43,6 +46,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "shoulders",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=Is_q4X7nByo",
         description: "Shoulder strength exercise.",
       },
       {
@@ -50,6 +54,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "shoulders",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=lcaWpewC3Wg",
         description: "Shoulder strength exercise.",
       },
       {
@@ -57,6 +62,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "shoulders",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=zQIvIRi66RM",
         description: "Shoulder strength exercise.",
       },
       {
@@ -64,6 +70,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "shoulders",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=yeTdQscby_g",
         description: "Shoulder strength exercise.",
       },
       {
@@ -71,6 +78,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "shoulders",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=XQ3H8YZmigM",
         description: "Shoulder strength exercise.",
       },
       {
@@ -78,6 +86,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "shoulders",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=Rd5AsxOGqss",
         description: "Shoulder strength exercise.",
       },
       {
@@ -85,6 +94,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "shoulders",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=XPPfnSEATJA",
         description: "Shoulder strength exercise.",
       },
       {
@@ -92,6 +102,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "shoulders",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=1R30rnr3xis",
         description: "Shoulder strength exercise.",
       },
       {
@@ -99,6 +110,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "chest",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=T0Y3OBF1bNI",
         description: "Chest strength exercise.",
       },
       {
@@ -106,6 +118,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "chest",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=tXv-rEa5xn8",
         description: "Chest strength exercise.",
       },
       {
@@ -113,6 +126,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "chest",
         equipment: "bodyweight",
+        videoUrl: "https://www.youtube.com/watch?v=WDIpL0pjun0",
         description: "Bodyweight exercise for chest, shoulders, and triceps.",
       },
       {
@@ -120,6 +134,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "chest",
         equipment: "bodyweight",
+        videoUrl: "https://www.youtube.com/watch?v=2cdIRe5tcqI",
         description: "Bodyweight exercise for chest, shoulders, and triceps.",
       },
       {
@@ -127,6 +142,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "biceps",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=6DeLZ6cbgWQ",
         description: "Biceps strength exercise.",
       },
       {
@@ -134,6 +150,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "biceps",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=BsULGO70tcU",
         description: "Biceps strength exercise.",
       },
       {
@@ -141,6 +158,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "biceps",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=SdJb3jP3pNo",
         description: "Biceps strength exercise.",
       },
       {
@@ -148,6 +166,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "biceps",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=RIEMoYL_h1Y",
         description: "Biceps strength exercise.",
       },
       {
@@ -155,6 +174,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "biceps",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=Xc47YLxFftQ",
         description: "Biceps strength exercise.",
       },
       {
@@ -162,6 +182,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "forearm",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=iQ4JjOK73PE",
         description: "Forearm strength exercise.",
       },
       {
@@ -169,6 +190,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "traps",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=_t3lrPI6Ns4",
         description: "Traps strength exercise.",
       },
       {
@@ -176,6 +198,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "triceps",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=HADoxgsslvw",
         description: "Triceps strength exercise.",
       },
       {
@@ -183,6 +206,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "triceps",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=R_-Zv0ltkNI",
         description: "Triceps strength exercise.",
       },
       {
@@ -190,6 +214,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "triceps",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=a9oPnZReIRE",
         description: "Triceps strength exercise.",
       },
       {
@@ -197,6 +222,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "triceps",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=2jl4M0Dnq4c",
         description: "Triceps strength exercise.",
       },
       {
@@ -204,6 +230,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "back",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=aPInZ07hkaw",
         description: "Back strength exercise.",
       },
       {
@@ -211,6 +238,7 @@ const exercises = [
         category: "strength",
         muscleGroup: "back",
         equipment: "dumbbell",
+        videoUrl: "https://www.youtube.com/watch?v=6gvmcqr226U",
         description: "Back strength exercise.",
       }
 ];

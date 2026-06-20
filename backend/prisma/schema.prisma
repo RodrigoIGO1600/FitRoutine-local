@@ -20,6 +20,7 @@ model Exercise {
   muscleGroup String
   equipment   String
   description String?
+  videoUrl String?
   createdAt   DateTime @default(now())
 
   routineExercises RoutineExercise[]

@@ -1,4 +1,4 @@
-import { apiPost } from "./client";
+import { apiDelete, apiPost } from "./client";
 import type { AddRoutineExerciseInput, RoutineExercise } from "../types/routine";
 
 type RoutineExerciseResponse = {
@@ -15,4 +15,10 @@ export async function addExerciseToRoutine(
   );
 
   return response.data;
+}
+
+export async function deleteRoutineExercise(routineExerciseId: number) {
+  await apiDelete<{ data: { deleted: true } }>(
+    `/routine-exercises/${routineExerciseId}`
+  );
 }

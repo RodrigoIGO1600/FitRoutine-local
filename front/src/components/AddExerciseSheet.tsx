@@ -1,5 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Icon } from "@iconify/react";
 import { getExercises } from "../api/exerciseApi";
+import { getMuscleGroupImage } from "../utils/muscleGroupImage";
+import { getYouTubeThumbnail } from "../utils/youtube";
 import type { Exercise } from "../types/exercise";
 
 type AddExerciseSheetProps = {
@@ -7,8 +10,23 @@ type AddExerciseSheetProps = {
   isSubmitting: boolean;
   existingExerciseIds: number[];
   onClose: () => void;
-  onSelect: (exercise: Exercise) => Promise<void>;
+  onSelect: (exercise: Exercise) => void;
+  onDeselect: (exercise: Exercise) => void;
 };
+
+const MUSCLE_GROUP_LABELS: Record<string, string> = {
+  shoulders: "Hombros",
+  chest: "Pecho",
+  biceps: "Bíceps",
+  triceps: "Tríceps",
+  back: "Espalda",
+  forearm: "Antebrazo",
+  traps: "Trapecios",
+};
+
+function getMuscleGroupLabel(key: string): string {
+  return MUSCLE_GROUP_LABELS[key] ?? key;
+}
 
 export function AddExerciseSheet({
   isOpen,
@@ -16,16 +34,15 @@ export function AddExerciseSheet({
   existingExerciseIds,
   onClose,
   onSelect,
+  onDeselect,
 }: AddExerciseSheetProps) {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
+    if (!isOpen) return;
 
     async function loadExercises() {
       setIsLoading(true);
@@ -44,31 +61,33 @@ export function AddExerciseSheet({
     loadExercises();
   }, [isOpen]);
 
-  if (!isOpen) {
-    return null;
-  }
+  const muscleGroups = useMemo(() => {
+    const groups = new Map<string, number>();
 
-  const filteredExercises = exercises.filter((exercise) => {
-    const query = search.trim().toLowerCase();
-
-    if (!query) {
-      return true;
+    for (const ex of exercises) {
+      const count = groups.get(ex.muscleGroup) ?? 0;
+      groups.set(ex.muscleGroup, count + 1);
     }
 
-    return (
-      exercise.name.toLowerCase().includes(query) ||
-      exercise.muscleGroup.toLowerCase().includes(query)
-    );
-  });
+    return [...groups.entries()].map(([key, count]) => ({ key, count }));
+  }, [exercises]);
+
+  const groupExercises = useMemo(() => {
+    if (!selectedGroup) return [];
+    return exercises.filter((ex) => ex.muscleGroup === selectedGroup);
+  }, [exercises, selectedGroup]);
 
   function handleClose() {
-    if (isSubmitting) {
-      return;
-    }
-
-    setSearch("");
+    if (isSubmitting) return;
+    setSelectedGroup(null);
     onClose();
   }
+
+  function handleBack() {
+    setSelectedGroup(null);
+  }
+
+  if (!isOpen) return null;
 
   return (
     <div className="sheet-overlay" onClick={handleClose} role="presentation">
@@ -82,21 +101,26 @@ export function AddExerciseSheet({
         <div className="sheet__handle" aria-hidden="true" />
 
         <header className="sheet__header">
-          <h2 id="add-exercise-title">Añadir ejercicio</h2>
-          <p>Elige un ejercicio de tu biblioteca.</p>
+          {selectedGroup ? (
+            <>
+              <button
+                type="button"
+                className="exercise-picker__back-btn"
+                onClick={handleBack}
+              >
+                ← Grupos
+              </button>
+              <h2 id="add-exercise-title">
+                {getMuscleGroupLabel(selectedGroup)}
+              </h2>
+            </>
+          ) : (
+            <>
+              <h2 id="add-exercise-title">Añadir ejercicio</h2>
+              <p>Selecciona un grupo muscular.</p>
+            </>
+          )}
         </header>
-
-        <label className="field">
-          <span className="field__label">Buscar</span>
-          <input
-            className="field__input"
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Nombre o grupo muscular"
-            disabled={isSubmitting}
-          />
-        </label>
 
         <div className="exercise-picker">
           {isLoading && <p className="exercise-picker__state">Cargando...</p>}
@@ -107,37 +131,101 @@ export function AddExerciseSheet({
             </p>
           )}
 
-          {!isLoading && !error && filteredExercises.length === 0 && (
-            <p className="exercise-picker__state">
-              No hay ejercicios que coincidan.
-            </p>
-          )}
-
-          {!isLoading && !error && filteredExercises.length > 0 && (
+          {!isLoading && !error && !selectedGroup && (
             <ul className="exercise-picker__list">
-              {filteredExercises.map((exercise) => {
-                const isAdded = existingExerciseIds.includes(exercise.id);
+              {muscleGroups.map(({ key, count }) => {
+                const groupImg = getMuscleGroupImage(key);
 
                 return (
-                  <li key={exercise.id}>
+                  <li key={key}>
                     <button
                       type="button"
-                      className="exercise-picker__item"
-                      disabled={isSubmitting || isAdded}
-                      onClick={() => onSelect(exercise)}
+                      className="exercise-picker__group-item"
+                      onClick={() => setSelectedGroup(key)}
                     >
-                      <span className="exercise-picker__name">
-                        {exercise.name}
-                      </span>
-                      <span className="exercise-picker__meta">
-                        {exercise.muscleGroup}
-                        {isAdded ? " · Ya añadido" : ""}
+                      {groupImg && (
+                        <img
+                          src={groupImg}
+                          alt=""
+                          className="exercise-picker__group-img"
+                        />
+                      )}
+                      <span className="exercise-picker__group-info">
+                        <span className="exercise-picker__group-name">
+                          {getMuscleGroupLabel(key)}
+                        </span>
+                        <span className="exercise-picker__group-count">
+                          {count} ejercicios
+                        </span>
                       </span>
                     </button>
                   </li>
                 );
               })}
             </ul>
+          )}
+
+          {!isLoading && !error && selectedGroup && (
+            <>
+              {groupExercises.length === 0 ? (
+                <p className="exercise-picker__state">
+                  No hay ejercicios en este grupo.
+                </p>
+              ) : (
+                <ul className="exercise-picker__list">
+                  {groupExercises.map((exercise) => {
+                    const isAdded = existingExerciseIds.includes(exercise.id);
+                    const thumbnail = getYouTubeThumbnail(exercise.videoUrl);
+
+                    return (
+                      <li key={exercise.id}>
+                        <button
+                          type="button"
+                          className={`exercise-picker__item${
+                            isAdded ? " exercise-picker__item--added" : ""
+                          }`}
+                          disabled={isSubmitting}
+                          onClick={() =>
+                            isAdded ? onDeselect(exercise) : onSelect(exercise)
+                          }
+                          aria-label={
+                            isAdded
+                              ? `Quitar ${exercise.name}`
+                              : `Añadir ${exercise.name}`
+                          }
+                          aria-pressed={isAdded}
+                        >
+                          {thumbnail ? (
+                            <img
+                              src={thumbnail}
+                              alt=""
+                              className="exercise-picker__thumb"
+                            />
+                          ) : (
+                            <div className="exercise-picker__thumb exercise-picker__thumb--empty" />
+                          )}
+                          <span className="exercise-picker__item-info">
+                            <span className="exercise-picker__name">
+                              {exercise.name}
+                            </span>
+                            <span className="exercise-picker__meta">
+                              {exercise.equipment}
+                            </span>
+                          </span>
+                          {isAdded && (
+                            <Icon
+                              icon="mdi:check-circle"
+                              className="exercise-picker__check"
+                              aria-hidden="true"
+                            />
+                          )}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </>
           )}
         </div>
       </div>

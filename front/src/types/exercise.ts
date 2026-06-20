@@ -5,5 +5,6 @@ export type Exercise = {
   muscleGroup: string;
   equipment: string;
   description: string;
+  videoUrl: string | null;
   createdAt: string;
 };
