@@ -163,7 +163,8 @@ export function WorkoutSessionPage() {
   const isReady = session !== null && session.length > 0;
 
   useEffect(() => {
-    if (!isReady) {
+    // Freeze the timer once the workout is finished (summary is showing).
+    if (!isReady || isFinished) {
       return;
     }
 
@@ -174,7 +175,7 @@ export function WorkoutSessionPage() {
     }, 1000);
 
     return () => window.clearInterval(intervalId);
-  }, [isReady]);
+  }, [isReady, isFinished]);
 
   // Persist progress whenever it changes so the user can leave and resume.
   useEffect(() => {
@@ -846,18 +847,7 @@ export function WorkoutSessionPage() {
               {isSaving ? "Guardando..." : "Finalizar y guardar"}
             </button>
 
-            <div className="workout__finish-links">
-              <button
-                type="button"
-                className="workout__text-btn"
-                onClick={() => {
-                  setSaveError(null);
-                  setIsFinished(false);
-                }}
-                disabled={isSaving}
-              >
-                Seguir entrenando
-              </button>
+            <div className="workout__finish-links workout__finish-links--single">
               <button
                 type="button"
                 className="workout__text-btn workout__text-btn--finish"
