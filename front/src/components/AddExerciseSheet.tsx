@@ -8,7 +8,7 @@ import type { Exercise } from "../types/exercise";
 type AddExerciseSheetProps = {
   isOpen: boolean;
   isSubmitting: boolean;
-  existingExerciseIds: number[];
+  existingExerciseIds: string[];
   onClose: () => void;
   onSelect: (exercise: Exercise) => void;
   onDeselect: (exercise: Exercise) => void;

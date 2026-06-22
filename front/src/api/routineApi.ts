@@ -23,7 +23,7 @@ export async function getRoutines() {
   return response.data;
 }
 
-export async function getRoutineById(id: number) {
+export async function getRoutineById(id: string) {
   const response = await apiGet<RoutineDetailResponse>(`/routines/${id}`);
   return response.data;
 }
@@ -33,11 +33,11 @@ export async function createRoutine(input: CreateRoutineInput) {
   return response.data;
 }
 
-export async function updateRoutine(id: number, input: UpdateRoutineInput) {
+export async function updateRoutine(id: string, input: UpdateRoutineInput) {
   const response = await apiPut<RoutineResponse>(`/routines/${id}`, input);
   return response.data;
 }
 
-export async function deleteRoutine(id: number) {
+export async function deleteRoutine(id: string) {
   await apiDelete<{ data: { deleted: true } }>(`/routines/${id}`);
 }

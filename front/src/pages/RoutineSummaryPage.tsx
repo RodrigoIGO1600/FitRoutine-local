@@ -3,6 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getRoutineById } from "../api/routineApi";
 import { getMuscleGroupImage } from "../utils/muscleGroupImage";
 import { getYouTubeThumbnail } from "../utils/youtube";
+import {
+  clearWorkoutProgress,
+  hasWorkoutProgress,
+} from "../utils/workoutStorage";
 import type { RoutineDetail } from "../types/routine";
 import "./RoutineSummaryPage.css";
 
@@ -18,22 +22,23 @@ function estimateMinutes(exercises: RoutineDetail["exercises"]): number {
 }
 
 export function RoutineSummaryPage() {
-  const { id } = useParams();
+  const { id: routineId } = useParams();
   const navigate = useNavigate();
-  const routineId = Number(id);
 
   const [routine, setRoutine] = useState<RoutineDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [resumable, setResumable] = useState(false);
 
   const loadRoutine = useCallback(async () => {
-    if (Number.isNaN(routineId)) {
+    if (!routineId) {
       setError("Rutina no válida");
       setIsLoading(false);
       return;
     }
 
     setError(null);
+    setResumable(hasWorkoutProgress(routineId));
 
     try {
       const result = await getRoutineById(routineId);
@@ -163,10 +168,34 @@ export function RoutineSummaryPage() {
         <button
           type="button"
           className="routine-summary__start-btn"
-          onClick={() => {}}
+          onClick={() => navigate(`/routines/${routineId}/workout`)}
+          disabled={exerciseCount === 0}
         >
-          Iniciar Rutina
+          {resumable ? "Reanudar entrenamiento" : "Iniciar Rutina"}
         </button>
+
+        {resumable && (
+          <button
+            type="button"
+            className="routine-summary__restart-btn"
+            onClick={() => {
+              if (
+                !window.confirm(
+                  "¿Empezar de cero? Se borrará el progreso guardado."
+                )
+              ) {
+                return;
+              }
+              if (routineId) {
+                clearWorkoutProgress(routineId);
+              }
+              setResumable(false);
+              navigate(`/routines/${routineId}/workout`);
+            }}
+          >
+            Empezar de cero
+          </button>
+        )}
       </footer>
     </div>
   );

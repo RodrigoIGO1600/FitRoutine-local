@@ -37,6 +37,7 @@ async function createRoutineExercise(input) {
             reps: input.reps,
             weight: input.weight ?? null,
             restSeconds: input.restSeconds,
+            restBetweenSeconds: input.restBetweenSeconds ?? 60,
             order: input.order,
             notes: input.notes ?? null,
         },
@@ -61,6 +62,7 @@ async function updateRoutineExercise(id, input) {
                 ? input.weight
                 : existingRoutineExercise.weight,
             restSeconds: input.restSeconds ?? existingRoutineExercise.restSeconds,
+            restBetweenSeconds: input.restBetweenSeconds ?? existingRoutineExercise.restBetweenSeconds,
             order: input.order ?? existingRoutineExercise.order,
             notes: input.notes !== undefined
                 ? input.notes

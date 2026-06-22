@@ -48,7 +48,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.defineExtension = exports.NullsOrder = exports.SortOrder = exports.RoutineExerciseScalarFieldEnum = exports.RoutineScalarFieldEnum = exports.ExerciseScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.prismaVersion = exports.getExtensionContext = exports.Decimal = exports.Sql = exports.raw = exports.join = exports.empty = exports.sql = exports.PrismaClientValidationError = exports.PrismaClientInitializationError = exports.PrismaClientRustPanicError = exports.PrismaClientUnknownRequestError = exports.PrismaClientKnownRequestError = void 0;
+exports.defineExtension = exports.NullsOrder = exports.SortOrder = exports.RoutineExerciseScalarFieldEnum = exports.WorkoutSessionScalarFieldEnum = exports.RoutineScalarFieldEnum = exports.ExerciseScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.prismaVersion = exports.getExtensionContext = exports.Decimal = exports.Sql = exports.raw = exports.join = exports.empty = exports.sql = exports.PrismaClientValidationError = exports.PrismaClientInitializationError = exports.PrismaClientRustPanicError = exports.PrismaClientUnknownRequestError = exports.PrismaClientKnownRequestError = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/client"));
 /**
  * Prisma Errors
@@ -105,6 +105,7 @@ exports.AnyNull = runtime.AnyNull;
 exports.ModelName = {
     Exercise: 'Exercise',
     Routine: 'Routine',
+    WorkoutSession: 'WorkoutSession',
     RoutineExercise: 'RoutineExercise'
 };
 /**
@@ -120,6 +121,7 @@ exports.ExerciseScalarFieldEnum = {
     muscleGroup: 'muscleGroup',
     equipment: 'equipment',
     description: 'description',
+    videoUrl: 'videoUrl',
     createdAt: 'createdAt'
 };
 exports.RoutineScalarFieldEnum = {
@@ -129,6 +131,16 @@ exports.RoutineScalarFieldEnum = {
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };
+exports.WorkoutSessionScalarFieldEnum = {
+    id: 'id',
+    routineId: 'routineId',
+    routineName: 'routineName',
+    durationSeconds: 'durationSeconds',
+    totalSets: 'totalSets',
+    totalReps: 'totalReps',
+    totalVolume: 'totalVolume',
+    completedAt: 'completedAt'
+};
 exports.RoutineExerciseScalarFieldEnum = {
     id: 'id',
     routineId: 'routineId',
@@ -137,6 +149,7 @@ exports.RoutineExerciseScalarFieldEnum = {
     reps: 'reps',
     weight: 'weight',
     restSeconds: 'restSeconds',
+    restBetweenSeconds: 'restBetweenSeconds',
     order: 'order',
     notes: 'notes'
 };

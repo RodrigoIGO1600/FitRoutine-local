@@ -5,3 +5,4 @@ const express_1 = require("express");
 const exercise_controller_js_1 = require("../controllers/exercise.controller.js");
 exports.exerciseRoutes = (0, express_1.Router)();
 exports.exerciseRoutes.get("/", exercise_controller_js_1.getExercisesController);
+exports.exerciseRoutes.post("/", exercise_controller_js_1.createExerciseController);

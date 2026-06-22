@@ -18,7 +18,7 @@ export async function getRoutines() {
   });
 }
 
-export async function getRoutineById(id: number) {
+export async function getRoutineById(id: string) {
   return prisma.routine.findUnique({
     where: {
       id,
@@ -49,7 +49,7 @@ export async function createRoutine(input: {
 }
 
 export async function updateRoutine(
-  id: number,
+  id: string,
   input: {
     name: string;
     description?: string | null;
@@ -66,7 +66,7 @@ export async function updateRoutine(
   });
 }
 
-export async function deleteRoutine(id: number) {
+export async function deleteRoutine(id: string) {
   return prisma.routine.delete({
     where: {
       id,

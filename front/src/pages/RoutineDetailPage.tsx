@@ -3,25 +3,32 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   addExerciseToRoutine,
   deleteRoutineExercise,
+  updateRoutineExercise,
+  type UpdateRoutineExerciseInput,
 } from "../api/routineExerciseApi";
 import { getRoutineById, updateRoutine } from "../api/routineApi";
 import { AddExerciseSheet } from "../components/AddExerciseSheet";
-import { RoutineExerciseRow } from "../components/RoutineExerciseRow";
+import { SortableExerciseList } from "../components/SortableExerciseList";
 import type { Exercise } from "../types/exercise";
 import type { RoutineDetail, RoutineExercise } from "../types/routine";
+import { createTempId, isTempId } from "../utils/id";
+import { applyExerciseOrder } from "../utils/reorder";
 import heroIcon from "../assets/hero.png";
 import "./RoutineDetailPage.css";
 
 const DEFAULT_SETS = 3;
 const DEFAULT_REPS = 10;
 const DEFAULT_REST_SECONDS = 90;
+const DEFAULT_REST_BETWEEN_SECONDS = 60;
 
-let tempIdCounter = -1;
+type SavedRestFields = {
+  restSeconds: number;
+  restBetweenSeconds: number;
+};
 
 export function RoutineDetailPage() {
-  const { id } = useParams();
+  const { id: routineId } = useParams();
   const navigate = useNavigate();
-  const routineId = Number(id);
 
   const [routine, setRoutine] = useState<RoutineDetail | null>(null);
   const [exercises, setExercises] = useState<RoutineExercise[]>([]);
@@ -32,7 +39,9 @@ export function RoutineDetailPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  const savedExerciseIdsRef = useRef<Set<number>>(new Set());
+  const savedExerciseIdsRef = useRef<Set<string>>(new Set());
+  const savedOrderIdsRef = useRef<string[]>([]);
+  const savedRestFieldsRef = useRef<Map<string, SavedRestFields>>(new Map());
 
   const isDirty = useMemo(() => {
     if (!routine) return false;
@@ -41,16 +50,35 @@ export function RoutineDetailPage() {
     const metaChanged = name !== routine.name || description !== savedDescription;
 
     const currentIds = new Set(exercises.map((e) => e.id));
-    const hasNewExercises = exercises.some((e) => e.id < 0);
+    const hasNewExercises = exercises.some((e) => isTempId(e.id));
     const hasDeletedExercises = [...savedExerciseIdsRef.current].some(
       (id) => !currentIds.has(id)
     );
+    const orderChanged =
+      exercises.map((e) => e.id).join("|") !==
+      savedOrderIdsRef.current.join("|");
 
-    return metaChanged || hasNewExercises || hasDeletedExercises;
+    const restChanged = exercises.some((e) => {
+      if (isTempId(e.id)) return false;
+      const saved = savedRestFieldsRef.current.get(e.id);
+      if (!saved) return false;
+      return (
+        saved.restSeconds !== e.restSeconds ||
+        saved.restBetweenSeconds !== e.restBetweenSeconds
+      );
+    });
+
+    return (
+      metaChanged ||
+      hasNewExercises ||
+      hasDeletedExercises ||
+      orderChanged ||
+      restChanged
+    );
   }, [routine, name, description, exercises]);
 
   const loadRoutine = useCallback(async () => {
-    if (Number.isNaN(routineId)) {
+    if (!routineId) {
       setError("Rutina no válida");
       setIsLoading(false);
       return;
@@ -60,11 +88,25 @@ export function RoutineDetailPage() {
 
     try {
       const result = await getRoutineById(routineId);
+      const sortedExercises = [...result.exercises].sort(
+        (a, b) => a.order - b.order
+      );
+
       setRoutine(result);
-      setExercises(result.exercises);
+      setExercises(sortedExercises);
       setName(result.name);
       setDescription(result.description ?? "");
-      savedExerciseIdsRef.current = new Set(result.exercises.map((e) => e.id));
+      savedExerciseIdsRef.current = new Set(sortedExercises.map((e) => e.id));
+      savedOrderIdsRef.current = sortedExercises.map((e) => e.id);
+      savedRestFieldsRef.current = new Map(
+        sortedExercises.map((e) => [
+          e.id,
+          {
+            restSeconds: e.restSeconds,
+            restBetweenSeconds: e.restBetweenSeconds,
+          },
+        ])
+      );
     } catch {
       setError("No se pudo cargar la rutina");
     } finally {
@@ -88,30 +130,58 @@ export function RoutineDetailPage() {
   }
 
   function handleAddExercise(exercise: Exercise) {
-    const tempId = tempIdCounter--;
+    if (!routineId) {
+      return;
+    }
+
     const newRoutineExercise: RoutineExercise = {
-      id: tempId,
+      id: createTempId(),
       routineId,
       exerciseId: exercise.id,
       sets: DEFAULT_SETS,
       reps: DEFAULT_REPS,
       weight: null,
       restSeconds: DEFAULT_REST_SECONDS,
+      restBetweenSeconds: DEFAULT_REST_BETWEEN_SECONDS,
       order: exercises.length + 1,
       notes: null,
       exercise,
     };
 
-    setExercises((current) => [...current, newRoutineExercise]);
+    setExercises((current) =>
+      applyExerciseOrder([...current, newRoutineExercise])
+    );
   }
 
-  function handleRemoveExercise(exerciseRowId: number) {
-    setExercises((current) => current.filter((e) => e.id !== exerciseRowId));
+  function handleReorder(reorderedExercises: RoutineExercise[]) {
+    setExercises(reorderedExercises);
+  }
+
+  function handleChangeRest(
+    exerciseRowId: string,
+    field: "restSeconds" | "restBetweenSeconds",
+    value: number
+  ) {
+    setExercises((current) =>
+      current.map((exercise) =>
+        exercise.id === exerciseRowId
+          ? { ...exercise, [field]: value }
+          : exercise
+      )
+    );
+  }
+
+  function handleRemoveExercise(exerciseRowId: string) {
+    setExercises((current) =>
+      applyExerciseOrder(current.filter((e) => e.id !== exerciseRowId))
+    );
   }
 
   function handleDeselectExercise(exercise: Exercise) {
     setExercises((current) =>
-      current.filter((e) => e.exerciseId !== exercise.id)
+      applyExerciseOrder(
+        current.filter((e) => e.exerciseId !== exercise.id)
+      )
     );
   }
 
@@ -153,16 +223,19 @@ export function RoutineDetailPage() {
         setDescription(updated.description ?? "");
       }
 
-      const currentIds = new Set(exercises.map((e) => e.id));
+      const orderedExercises = applyExerciseOrder(exercises);
+      const currentIds = new Set(orderedExercises.map((e) => e.id));
 
       const toDelete = [...savedExerciseIdsRef.current].filter(
-        (id) => !currentIds.has(id)
+        (savedId) => !currentIds.has(savedId)
       );
       for (const reId of toDelete) {
-        await deleteRoutineExercise(reId);
+        if (!isTempId(reId)) {
+          await deleteRoutineExercise(reId);
+        }
       }
 
-      const toAdd = exercises.filter((e) => e.id < 0);
+      const toAdd = orderedExercises.filter((e) => isTempId(e.id));
       const addedExercises: RoutineExercise[] = [];
       for (const pending of toAdd) {
         const saved = await addExerciseToRoutine(routine.id, {
@@ -171,23 +244,65 @@ export function RoutineDetailPage() {
           reps: pending.reps,
           weight: pending.weight,
           restSeconds: pending.restSeconds,
+          restBetweenSeconds: pending.restBetweenSeconds,
           order: pending.order,
         });
         addedExercises.push(saved);
       }
 
-      const finalExercises = exercises.map((e) => {
-        if (e.id < 0) {
-          const saved = addedExercises.find(
-            (s) => s.exerciseId === e.exerciseId && s.order === e.order
-          );
-          return saved ?? e;
+      let resolvedExercises = orderedExercises.map((exercise) => {
+        if (!isTempId(exercise.id)) {
+          return exercise;
         }
-        return e;
+
+        const pendingIndex = toAdd.findIndex((item) => item.id === exercise.id);
+        return addedExercises[pendingIndex] ?? exercise;
       });
 
-      setExercises(finalExercises);
-      savedExerciseIdsRef.current = new Set(finalExercises.map((e) => e.id));
+      for (const exercise of resolvedExercises) {
+        if (isTempId(exercise.id)) {
+          continue;
+        }
+
+        const patch: UpdateRoutineExerciseInput = {};
+
+        const originalIndex = savedOrderIdsRef.current.indexOf(exercise.id);
+        if (originalIndex !== -1 && originalIndex + 1 !== exercise.order) {
+          patch.order = exercise.order;
+        }
+
+        const savedFields = savedRestFieldsRef.current.get(exercise.id);
+        if (savedFields) {
+          if (savedFields.restSeconds !== exercise.restSeconds) {
+            patch.restSeconds = exercise.restSeconds;
+          }
+          if (savedFields.restBetweenSeconds !== exercise.restBetweenSeconds) {
+            patch.restBetweenSeconds = exercise.restBetweenSeconds;
+          }
+        }
+
+        if (Object.keys(patch).length > 0) {
+          const updated = await updateRoutineExercise(exercise.id, patch);
+          resolvedExercises = resolvedExercises.map((item) =>
+            item.id === updated.id ? updated : item
+          );
+        }
+      }
+
+      setExercises(resolvedExercises);
+      savedExerciseIdsRef.current = new Set(
+        resolvedExercises.map((e) => e.id)
+      );
+      savedOrderIdsRef.current = resolvedExercises.map((e) => e.id);
+      savedRestFieldsRef.current = new Map(
+        resolvedExercises.map((e) => [
+          e.id,
+          {
+            restSeconds: e.restSeconds,
+            restBetweenSeconds: e.restBetweenSeconds,
+          },
+        ])
+      );
     } catch {
       setError("No se pudo guardar los cambios");
     } finally {
@@ -293,16 +408,12 @@ export function RoutineDetailPage() {
             <p>Aún no hay ejercicios en esta rutina.</p>
           </div>
         ) : (
-          <ul className="routine-detail__exercises">
-            {exercises.map((routineExercise) => (
-              <li key={routineExercise.id}>
-                <RoutineExerciseRow
-                  routineExercise={routineExercise}
-                  onRemove={() => handleRemoveExercise(routineExercise.id)}
-                />
-              </li>
-            ))}
-          </ul>
+          <SortableExerciseList
+            exercises={exercises}
+            onReorder={handleReorder}
+            onRemove={handleRemoveExercise}
+            onChangeRest={handleChangeRest}
+          />
         )}
       </main>
 

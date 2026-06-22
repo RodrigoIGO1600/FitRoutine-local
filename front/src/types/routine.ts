@@ -1,7 +1,7 @@
 import type { Exercise } from "./exercise";
 
 export type Routine = {
-  id: number;
+  id: string;
   name: string;
   description: string | null;
   createdAt: string;
@@ -9,13 +9,14 @@ export type Routine = {
 };
 
 export type RoutineExercise = {
-  id: number;
-  routineId: number;
-  exerciseId: number;
+  id: string;
+  routineId: string;
+  exerciseId: string;
   sets: number;
   reps: number;
   weight: number | null;
   restSeconds: number;
+  restBetweenSeconds: number;
   order: number;
   notes: string | null;
   exercise: Exercise;
@@ -36,11 +37,12 @@ export type UpdateRoutineInput = {
 };
 
 export type AddRoutineExerciseInput = {
-  exerciseId: number;
+  exerciseId: string;
   sets: number;
   reps: number;
   weight?: number | null;
   restSeconds: number;
+  restBetweenSeconds?: number;
   order: number;
   notes?: string | null;
 };

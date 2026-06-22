@@ -6,6 +6,7 @@ import {
   getRoutines,
   updateRoutine,
 } from "../services/routine.service.js";
+import { parseIdParam } from "../utils/params.js";
 
 export async function getRoutinesController(_req: Request, res: Response) {
   const routines = await getRoutines();
@@ -16,9 +17,9 @@ export async function getRoutinesController(_req: Request, res: Response) {
 }
 
 export async function getRoutineByIdController(req: Request, res: Response) {
-  const routineId = Number(req.params.id);
+  const routineId = parseIdParam(req.params.id);
 
-  if (Number.isNaN(routineId)) {
+  if (!routineId) {
     return res.status(400).json({
       error: "Invalid routine id",
     });
@@ -57,10 +58,10 @@ export async function createRoutineController(req: Request, res: Response) {
 }
 
 export async function updateRoutineController(req: Request, res: Response) {
-  const routineId = Number(req.params.id);
+  const routineId = parseIdParam(req.params.id);
   const { name, description } = req.body;
 
-  if (Number.isNaN(routineId)) {
+  if (!routineId) {
     return res.status(400).json({
       error: "Invalid routine id",
     });
@@ -91,9 +92,9 @@ export async function updateRoutineController(req: Request, res: Response) {
 }
 
 export async function deleteRoutineController(req: Request, res: Response) {
-  const routineId = Number(req.params.id);
+  const routineId = parseIdParam(req.params.id);
 
-  if (Number.isNaN(routineId)) {
+  if (!routineId) {
     return res.status(400).json({
       error: "Invalid routine id",
     });

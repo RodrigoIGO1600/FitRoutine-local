@@ -8,7 +8,38 @@
 }
 
 .home__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   padding: 8px 4px 24px;
+}
+
+.home__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.home__icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.home__icon-btn:active {
+  background: #2a3544;
 }
 
 .home__eyebrow {

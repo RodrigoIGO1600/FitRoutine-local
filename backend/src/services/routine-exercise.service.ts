@@ -1,6 +1,6 @@
 import { prisma } from "../db/prisma.js";
 
-export async function getRoutineById(id: number) {
+export async function getRoutineById(id: string) {
   return prisma.routine.findUnique({
     where: {
       id,
@@ -8,7 +8,7 @@ export async function getRoutineById(id: number) {
   });
 }
 
-export async function getExerciseById(id: number) {
+export async function getExerciseById(id: string) {
   return prisma.exercise.findUnique({
     where: {
       id,
@@ -16,7 +16,7 @@ export async function getExerciseById(id: number) {
   });
 }
 
-export async function getRoutineExerciseById(id: number) {
+export async function getRoutineExerciseById(id: string) {
   return prisma.routineExercise.findUnique({
     where: {
       id,
@@ -25,12 +25,13 @@ export async function getRoutineExerciseById(id: number) {
 }
 
 export async function createRoutineExercise(input: {
-  routineId: number;
-  exerciseId: number;
+  routineId: string;
+  exerciseId: string;
   sets: number;
   reps: number;
   weight?: number | null;
   restSeconds: number;
+  restBetweenSeconds?: number;
   order: number;
   notes?: string | null;
 }) {
@@ -42,6 +43,7 @@ export async function createRoutineExercise(input: {
       reps: input.reps,
       weight: input.weight ?? null,
       restSeconds: input.restSeconds,
+      restBetweenSeconds: input.restBetweenSeconds ?? 60,
       order: input.order,
       notes: input.notes ?? null,
     },
@@ -52,12 +54,13 @@ export async function createRoutineExercise(input: {
 }
 
 export async function updateRoutineExercise(
-  id: number,
+  id: string,
   input: {
     sets?: number;
     reps?: number;
     weight?: number | null;
     restSeconds?: number;
+    restBetweenSeconds?: number;
     order?: number;
     notes?: string | null;
   }
@@ -80,6 +83,8 @@ export async function updateRoutineExercise(
           ? input.weight
           : existingRoutineExercise.weight,
       restSeconds: input.restSeconds ?? existingRoutineExercise.restSeconds,
+      restBetweenSeconds:
+        input.restBetweenSeconds ?? existingRoutineExercise.restBetweenSeconds,
       order: input.order ?? existingRoutineExercise.order,
       notes:
         input.notes !== undefined
@@ -92,7 +97,7 @@ export async function updateRoutineExercise(
   });
 }
 
-export async function deleteRoutineExercise(id: number) {
+export async function deleteRoutineExercise(id: string) {
   return prisma.routineExercise.delete({
     where: {
       id,

@@ -4,15 +4,21 @@ exports.createRoutineExerciseController = createRoutineExerciseController;
 exports.updateRoutineExerciseController = updateRoutineExerciseController;
 exports.deleteRoutineExerciseController = deleteRoutineExerciseController;
 const routine_exercise_service_js_1 = require("../services/routine-exercise.service.js");
+const params_js_1 = require("../utils/params.js");
 async function createRoutineExerciseController(req, res) {
-    const routineId = Number(req.params.id);
-    const { exerciseId, sets, reps, weight, restSeconds, order, notes, } = req.body;
-    if (Number.isNaN(routineId)) {
+    const routineId = (0, params_js_1.parseIdParam)(req.params.id);
+    const { exerciseId, sets, reps, weight, restSeconds, restBetweenSeconds, order, notes, } = req.body;
+    if (!routineId) {
         return res.status(400).json({
             error: "Invalid routine id",
         });
     }
-    if (!exerciseId || !sets || !reps || !restSeconds || !order) {
+    if (!exerciseId ||
+        typeof exerciseId !== "string" ||
+        sets === undefined ||
+        reps === undefined ||
+        restSeconds === undefined ||
+        order === undefined) {
         return res.status(400).json({
             error: "exerciseId, sets, reps, restSeconds and order are required",
         });
@@ -23,7 +29,7 @@ async function createRoutineExerciseController(req, res) {
             error: "Routine not found",
         });
     }
-    const exercise = await (0, routine_exercise_service_js_1.getExerciseById)(Number(exerciseId));
+    const exercise = await (0, routine_exercise_service_js_1.getExerciseById)(exerciseId);
     if (!exercise) {
         return res.status(404).json({
             error: "Exercise not found",
@@ -31,11 +37,12 @@ async function createRoutineExerciseController(req, res) {
     }
     const routineExercise = await (0, routine_exercise_service_js_1.createRoutineExercise)({
         routineId,
-        exerciseId: Number(exerciseId),
+        exerciseId,
         sets: Number(sets),
         reps: Number(reps),
         weight: weight !== undefined && weight !== null ? Number(weight) : null,
         restSeconds: Number(restSeconds),
+        restBetweenSeconds: restBetweenSeconds !== undefined ? Number(restBetweenSeconds) : undefined,
         order: Number(order),
         notes: notes ?? null,
     });
@@ -44,9 +51,9 @@ async function createRoutineExerciseController(req, res) {
     });
 }
 async function updateRoutineExerciseController(req, res) {
-    const routineExerciseId = Number(req.params.id);
-    const { sets, reps, weight, restSeconds, order, notes, } = req.body;
-    if (Number.isNaN(routineExerciseId)) {
+    const routineExerciseId = (0, params_js_1.parseIdParam)(req.params.id);
+    const { sets, reps, weight, restSeconds, restBetweenSeconds, order, notes, } = req.body;
+    if (!routineExerciseId) {
         return res.status(400).json({
             error: "Invalid routine exercise id",
         });
@@ -60,8 +67,15 @@ async function updateRoutineExerciseController(req, res) {
     const updatedRoutineExercise = await (0, routine_exercise_service_js_1.updateRoutineExercise)(routineExerciseId, {
         sets: sets !== undefined ? Number(sets) : undefined,
         reps: reps !== undefined ? Number(reps) : undefined,
-        weight: weight !== undefined && weight !== null ? Number(weight) : null,
+        weight: weight === undefined
+            ? undefined
+            : weight === null
+                ? null
+                : Number(weight),
         restSeconds: restSeconds !== undefined ? Number(restSeconds) : undefined,
+        restBetweenSeconds: restBetweenSeconds !== undefined
+            ? Number(restBetweenSeconds)
+            : undefined,
         order: order !== undefined ? Number(order) : undefined,
         notes: notes !== undefined ? notes : undefined,
     });
@@ -70,8 +84,8 @@ async function updateRoutineExerciseController(req, res) {
     });
 }
 async function deleteRoutineExerciseController(req, res) {
-    const routineExerciseId = Number(req.params.id);
-    if (Number.isNaN(routineExerciseId)) {
+    const routineExerciseId = (0, params_js_1.parseIdParam)(req.params.id);
+    if (!routineExerciseId) {
         return res.status(400).json({
             error: "Invalid routine exercise id",
         });

@@ -1,8 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider     = "prisma-client"
   output       = "../src/generated/prisma"
@@ -14,38 +12,53 @@ datasource db {
 }
 
 model Exercise {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(cuid())
   name        String
   category    String
   muscleGroup String
   equipment   String
   description String?
-  videoUrl String?
+  videoUrl    String?
   createdAt   DateTime @default(now())
 
   routineExercises RoutineExercise[]
 }
 
 model Routine {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(cuid())
   name        String
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  exercises RoutineExercise[]
+  exercises       RoutineExercise[]
+  workoutSessions WorkoutSession[]
+}
+
+model WorkoutSession {
+  id              String   @id @default(cuid())
+  routineId       String?
+  routineName     String
+  durationSeconds Int
+  totalSets       Int
+  totalReps       Int
+  totalVolume     Float    @default(0)
+  completedAt     DateTime @default(now())
+
+  routine Routine? @relation(fields: [routineId], references: [id], onDelete: SetNull)
 }
 
 model RoutineExercise {
-  id          Int     @id @default(autoincrement())
-  routineId   Int
-  exerciseId  Int
-  sets        Int
-  reps        Int
-  weight      Float?
-  restSeconds Int
-  order       Int
-  notes       String?
+  id          String  @id @default(cuid())
+  routineId   String
+  exerciseId  String
+  sets               Int
+  reps               Int
+  weight             Float?
+  restSeconds        Int
+  restBetweenSeconds Int     @default(60)
+  order              Int
+  notes              String?
 
   routine  Routine  @relation(fields: [routineId], references: [id], onDelete: Cascade)
   exercise Exercise @relation(fields: [exerciseId], references: [id])
