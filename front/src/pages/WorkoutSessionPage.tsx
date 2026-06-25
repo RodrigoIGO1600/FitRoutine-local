@@ -4,6 +4,7 @@ import { getRoutineById } from "../api/routineApi";
 import { createWorkoutSession } from "../api/workoutSessionApi";
 import { getMuscleGroupImage } from "../utils/muscleGroupImage";
 import { getYouTubeThumbnail } from "../utils/youtube";
+import { playRestFinished, unlockAudio } from "../utils/sound";
 import { createTempId } from "../utils/id";
 import {
   clearWorkoutProgress,
@@ -43,6 +44,12 @@ const MUSCLE_LABELS: Record<string, string> = {
   core: "Core",
 };
 
+function formatRest(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
 function muscleLabel(muscleGroup: string): string {
   return MUSCLE_LABELS[muscleGroup.toLowerCase()] ?? muscleGroup.toUpperCase();
 }
@@ -69,6 +76,7 @@ export function WorkoutSessionPage() {
   const [error, setError] = useState<string | null>(null);
   const [isJumpSheetOpen, setIsJumpSheetOpen] = useState(false);
   const [rest, setRest] = useState<RestState | null>(null);
+  const [isRestMinimized, setIsRestMinimized] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -206,6 +214,23 @@ export function WorkoutSessionPage() {
 
   const isResting = rest !== null;
 
+  // Unlock audio on first user interaction (required for mobile browsers)
+  useEffect(() => {
+    function handleInteraction() {
+      unlockAudio();
+      document.removeEventListener("click", handleInteraction);
+      document.removeEventListener("touchstart", handleInteraction);
+    }
+
+    document.addEventListener("click", handleInteraction);
+    document.addEventListener("touchstart", handleInteraction);
+
+    return () => {
+      document.removeEventListener("click", handleInteraction);
+      document.removeEventListener("touchstart", handleInteraction);
+    };
+  }, []);
+
   function goToNextExercise() {
     setCurrentIndex((index) =>
       Math.min((session?.length ?? 1) - 1, index + 1)
@@ -215,6 +240,7 @@ export function WorkoutSessionPage() {
   function endRest() {
     const shouldAdvance = rest?.advanceAfter ?? false;
     setRest(null);
+    setIsRestMinimized(false);
     if (shouldAdvance) {
       goToNextExercise();
     }
@@ -240,7 +266,9 @@ export function WorkoutSessionPage() {
       return;
     }
 
+    playRestFinished();
     setRest(null);
+    setIsRestMinimized(false);
 
     if (rest.advanceAfter) {
       setCurrentIndex((index) =>
@@ -521,6 +549,7 @@ export function WorkoutSessionPage() {
   const muscleImage = getMuscleGroupImage(current.exercise.muscleGroup);
   const activeSetIndex = current.sets.findIndex((set) => !set.completed);
   const isLastExercise = currentIndex === session.length - 1;
+  const restProgress = rest && rest.total > 0 ? rest.remaining / rest.total : 0;
 
   return (
     <div className="workout">
@@ -677,6 +706,7 @@ export function WorkoutSessionPage() {
                 type="button"
                 className="workout__set-action"
                 onClick={() => setSetCompleted(set.id, !set.completed)}
+                disabled={rest !== null}
                 aria-label={
                   set.completed
                     ? `Desmarcar serie ${index + 1}`
@@ -777,7 +807,7 @@ export function WorkoutSessionPage() {
         </div>
       )}
 
-      {rest && (
+      {rest && !isRestMinimized && (
         <RestTimer
           remaining={rest.remaining}
           total={rest.total}
@@ -797,10 +827,45 @@ export function WorkoutSessionPage() {
               ? getYouTubeThumbnail(session[currentIndex + 1].exercise.videoUrl)
               : undefined
           }
+          nextExerciseUrl={
+            rest.kind === "exercise" && session[currentIndex + 1]
+              ? session[currentIndex + 1].exercise.videoUrl ?? undefined
+              : undefined
+          }
           onSkip={endRest}
           onAdjust={adjustRest}
           onEdit={editRest}
+          onMinimize={() => setIsRestMinimized(true)}
         />
+      )}
+
+      {rest && isRestMinimized && (
+        <button
+          type="button"
+          className="workout__rest-minimized"
+          onClick={() => setIsRestMinimized(false)}
+          aria-label="Expandir timer de descanso"
+        >
+          <svg className="workout__rest-minimized-ring" viewBox="0 0 40 40" aria-hidden="true">
+            <circle
+              className="workout__rest-minimized-track"
+              cx="20"
+              cy="20"
+              r="17"
+            />
+            <circle
+              className="workout__rest-minimized-progress"
+              cx="20"
+              cy="20"
+              r="17"
+              style={{
+                strokeDasharray: 2 * Math.PI * 17,
+                strokeDashoffset: 2 * Math.PI * 17 * (1 - restProgress),
+              }}
+            />
+          </svg>
+          <span className="workout__rest-minimized-time">{formatRest(rest.remaining)}</span>
+        </button>
       )}
 
       {isFinished && (

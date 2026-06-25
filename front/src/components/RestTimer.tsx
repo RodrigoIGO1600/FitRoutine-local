@@ -5,9 +5,11 @@ type RestTimerProps = {
   nextExerciseName?: string;
   nextExerciseMuscleGroup?: string;
   nextExerciseImage?: string | null;
+  nextExerciseUrl?: string;
   onSkip: () => void;
   onAdjust: (delta: number) => void;
   onEdit: () => void;
+  onMinimize: () => void;
 };
 
 const RADIUS = 110;
@@ -26,9 +28,11 @@ export function RestTimer({
   nextExerciseName,
   nextExerciseMuscleGroup,
   nextExerciseImage,
+  nextExerciseUrl,
   onSkip,
   onAdjust,
   onEdit,
+  onMinimize,
 }: RestTimerProps) {
   const progress = total > 0 ? Math.min(1, Math.max(0, remaining / total)) : 0;
   const dashOffset = CIRCUMFERENCE * (1 - progress);
@@ -39,6 +43,7 @@ export function RestTimer({
       role="dialog"
       aria-modal="true"
       aria-label="Tiempo de descanso"
+      onClick={onMinimize}
     >
       <div className="workout__rest-circle" onClick={onSkip}>
         <svg className="workout__rest-ring" viewBox="0 0 240 240" aria-hidden="true">
@@ -127,28 +132,42 @@ export function RestTimer({
             <span className="workout__rest-next-arrow">→</span>
           </div>
           <div className="workout__rest-next-card">
-            <div className="workout__rest-next-thumb">
-              {nextExerciseImage ? (
+            {nextExerciseImage && nextExerciseUrl ? (
+              <a
+                className="workout__rest-next-thumb"
+                href={nextExerciseUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Ver video de ${nextExerciseName} en YouTube`}
+              >
                 <img
                   className="workout__rest-next-img"
                   src={nextExerciseImage}
                   alt={nextExerciseName}
                 />
-              ) : (
-                <div className="workout__rest-next-placeholder">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="5 3 19 12 5 21 5 3" />
-                  </svg>
-                </div>
-              )}
-              {nextExerciseImage && (
                 <div className="workout__rest-next-play">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <polygon points="5 3 19 12 5 21 5 3" />
                   </svg>
                 </div>
-              )}
-            </div>
+              </a>
+            ) : nextExerciseImage ? (
+              <div className="workout__rest-next-thumb">
+                <img
+                  className="workout__rest-next-img"
+                  src={nextExerciseImage}
+                  alt={nextExerciseName}
+                />
+              </div>
+            ) : (
+              <div className="workout__rest-next-thumb">
+                <div className="workout__rest-next-placeholder">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                  </svg>
+                </div>
+              </div>
+            )}
             <div className="workout__rest-next-info">
               <span className="workout__rest-next-name">{nextExerciseName}</span>
               {nextExerciseMuscleGroup && (
