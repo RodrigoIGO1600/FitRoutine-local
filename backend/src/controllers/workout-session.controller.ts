@@ -11,11 +11,18 @@ export async function getWorkoutSessionsController(
   _req: Request,
   res: Response
 ) {
-  const sessions = await getWorkoutSessions();
+  try {
+    const sessions = await getWorkoutSessions();
 
-  res.json({
-    data: sessions,
-  });
+    res.json({
+      data: sessions,
+    });
+  } catch (error) {
+    console.error("Failed to fetch workout sessions:", error);
+    res.status(500).json({
+      error: "Failed to fetch workout sessions",
+    });
+  }
 }
 
 export async function createWorkoutSessionController(

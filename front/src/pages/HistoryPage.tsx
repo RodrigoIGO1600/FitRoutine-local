@@ -43,7 +43,7 @@ export function HistoryPage() {
 
     try {
       const result = await getWorkoutSessions();
-      setSessions(result);
+      setSessions(Array.isArray(result) ? result : []);
     } catch {
       setError("No se pudo cargar el historial");
     } finally {

@@ -2,6 +2,7 @@ type RestTimerProps = {
   remaining: number;
   total: number;
   label: string;
+  nextExerciseName?: string;
   onSkip: () => void;
   onAdjust: (delta: number) => void;
   onEdit: () => void;
@@ -20,6 +21,7 @@ export function RestTimer({
   remaining,
   total,
   label,
+  nextExerciseName,
   onSkip,
   onAdjust,
   onEdit,
@@ -57,6 +59,13 @@ export function RestTimer({
         <div className="workout__rest-content">
           <span className="workout__rest-skip">Toca para saltar</span>
           <span className="workout__rest-label">{label}</span>
+
+          {nextExerciseName && (
+            <span className="workout__rest-next">
+              Siguiente: <strong>{nextExerciseName}</strong>
+            </span>
+          )}
+
           <span className="workout__rest-sub">
             Descanso: {formatRest(total)} min
           </span>

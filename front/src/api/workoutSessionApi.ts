@@ -14,7 +14,7 @@ type WorkoutSessionResponse = {
 
 export async function getWorkoutSessions() {
   const response = await apiGet<WorkoutSessionsResponse>("/workout-sessions");
-  return response.data;
+  return response.data ?? [];
 }
 
 export async function createWorkoutSession(input: CreateWorkoutSessionInput) {

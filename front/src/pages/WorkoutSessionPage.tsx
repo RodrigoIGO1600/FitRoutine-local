@@ -782,6 +782,11 @@ export function WorkoutSessionPage() {
           remaining={rest.remaining}
           total={rest.total}
           label={REST_LABELS[rest.kind]}
+          nextExerciseName={
+            rest.kind === "exercise" && session[currentIndex + 1]
+              ? session[currentIndex + 1].exercise.name
+              : undefined
+          }
           onSkip={endRest}
           onAdjust={adjustRest}
           onEdit={editRest}
