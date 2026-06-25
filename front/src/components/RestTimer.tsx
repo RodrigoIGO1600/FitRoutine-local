@@ -3,6 +3,8 @@ type RestTimerProps = {
   total: number;
   label: string;
   nextExerciseName?: string;
+  nextExerciseMuscleGroup?: string;
+  nextExerciseImage?: string | null;
   onSkip: () => void;
   onAdjust: (delta: number) => void;
   onEdit: () => void;
@@ -22,6 +24,8 @@ export function RestTimer({
   total,
   label,
   nextExerciseName,
+  nextExerciseMuscleGroup,
+  nextExerciseImage,
   onSkip,
   onAdjust,
   onEdit,
@@ -59,12 +63,6 @@ export function RestTimer({
         <div className="workout__rest-content">
           <span className="workout__rest-skip">Toca para saltar</span>
           <span className="workout__rest-label">{label}</span>
-
-          {nextExerciseName && (
-            <span className="workout__rest-next">
-              Siguiente: <strong>{nextExerciseName}</strong>
-            </span>
-          )}
 
           <span className="workout__rest-sub">
             Descanso: {formatRest(total)} min
@@ -121,6 +119,45 @@ export function RestTimer({
           </button>
         </div>
       </div>
+
+      {nextExerciseName && (
+        <div className="workout__rest-next-preview">
+          <div className="workout__rest-next-header">
+            <span className="workout__rest-next-label">Siguiente</span>
+            <span className="workout__rest-next-arrow">→</span>
+          </div>
+          <div className="workout__rest-next-card">
+            <div className="workout__rest-next-thumb">
+              {nextExerciseImage ? (
+                <img
+                  className="workout__rest-next-img"
+                  src={nextExerciseImage}
+                  alt={nextExerciseName}
+                />
+              ) : (
+                <div className="workout__rest-next-placeholder">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                  </svg>
+                </div>
+              )}
+              {nextExerciseImage && (
+                <div className="workout__rest-next-play">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                  </svg>
+                </div>
+              )}
+            </div>
+            <div className="workout__rest-next-info">
+              <span className="workout__rest-next-name">{nextExerciseName}</span>
+              {nextExerciseMuscleGroup && (
+                <span className="workout__rest-next-muscle">{nextExerciseMuscleGroup}</span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

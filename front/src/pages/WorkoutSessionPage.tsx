@@ -787,6 +787,16 @@ export function WorkoutSessionPage() {
               ? session[currentIndex + 1].exercise.name
               : undefined
           }
+          nextExerciseMuscleGroup={
+            rest.kind === "exercise" && session[currentIndex + 1]
+              ? muscleLabel(session[currentIndex + 1].exercise.muscleGroup)
+              : undefined
+          }
+          nextExerciseImage={
+            rest.kind === "exercise" && session[currentIndex + 1]
+              ? getYouTubeThumbnail(session[currentIndex + 1].exercise.videoUrl)
+              : undefined
+          }
           onSkip={endRest}
           onAdjust={adjustRest}
           onEdit={editRest}
