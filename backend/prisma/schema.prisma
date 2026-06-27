@@ -54,6 +54,7 @@ model RoutineExercise {
   exerciseId  String
   sets               Int
   reps               Int
+  repsList           String?
   weight             Float?
   restSeconds        Int
   restBetweenSeconds Int     @default(60)

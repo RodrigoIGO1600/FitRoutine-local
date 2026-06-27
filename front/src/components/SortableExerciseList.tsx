@@ -11,6 +11,7 @@ type SortableExerciseListProps = {
   exercises: RoutineExercise[];
   onReorder: (exercises: RoutineExercise[]) => void;
   onRemove: (exerciseRowId: string) => void;
+  onChangeSets: (exerciseRowId: string, value: number) => void;
   onChangeRest: (
     exerciseRowId: string,
     field: "restSeconds" | "restBetweenSeconds",
@@ -30,6 +31,7 @@ export function SortableExerciseList({
   exercises,
   onReorder,
   onRemove,
+  onChangeSets,
   onChangeRest,
 }: SortableExerciseListProps) {
   const [dragState, setDragState] = useState<DragState | null>(null);
@@ -248,6 +250,9 @@ export function SortableExerciseList({
             <RoutineExerciseRow
               routineExercise={routineExercise}
               onRemove={() => onRemove(routineExercise.id)}
+              onChangeSets={(value) =>
+                onChangeSets(routineExercise.id, value)
+              }
               onChangeRest={(field, value) =>
                 onChangeRest(routineExercise.id, field, value)
               }

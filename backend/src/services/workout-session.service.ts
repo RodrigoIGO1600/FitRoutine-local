@@ -1,7 +1,8 @@
 import { prisma } from "../db/prisma.js";
 
-export async function getWorkoutSessions() {
+export async function getWorkoutSessions(routineId?: string) {
   return prisma.workoutSession.findMany({
+    where: routineId ? { routineId } : undefined,
     orderBy: {
       completedAt: "desc",
     },

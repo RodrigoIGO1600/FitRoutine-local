@@ -146,7 +146,7 @@ export function RestTimer({
                   alt={nextExerciseName}
                 />
                 <div className="workout__rest-next-play">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <polygon points="5 3 19 12 5 21 5 3" />
                   </svg>
                 </div>
@@ -160,9 +160,9 @@ export function RestTimer({
                 />
               </div>
             ) : (
-              <div className="workout__rest-next-thumb">
+              <div className="workout__rest-next-thumb workout__rest-next-thumb--empty">
                 <div className="workout__rest-next-placeholder">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polygon points="5 3 19 12 5 21 5 3" />
                   </svg>
                 </div>

@@ -14,6 +14,7 @@ export type RoutineExercise = {
   exerciseId: string;
   sets: number;
   reps: number;
+  repsList: string | null;
   weight: number | null;
   restSeconds: number;
   restBetweenSeconds: number;
@@ -40,6 +41,7 @@ export type AddRoutineExerciseInput = {
   exerciseId: string;
   sets: number;
   reps: number;
+  repsList?: string | null;
   weight?: number | null;
   restSeconds: number;
   restBetweenSeconds?: number;

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getRoutineById } from "../api/routineApi";
+import { getWorkoutSessions } from "../api/workoutSessionApi";
 import { getMuscleGroupImage } from "../utils/muscleGroupImage";
 import { getYouTubeThumbnail } from "../utils/youtube";
 import {
@@ -21,6 +22,31 @@ function estimateMinutes(exercises: RoutineDetail["exercises"]): number {
   return Math.round(totalSeconds / 60);
 }
 
+function parseRepsList(repsList: string | null): number[] | null {
+  if (!repsList) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(repsList);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function repsDisplay(reps: number, repsList: string | null): string {
+  const list = parseRepsList(repsList);
+
+  if (!list || list.length === 0) {
+    return `${reps} reps`;
+  }
+
+  const min = Math.min(...list);
+  const max = Math.max(...list);
+  return min === max ? `${min} reps` : `${min}-${max} reps`;
+}
+
 export function RoutineSummaryPage() {
   const { id: routineId } = useParams();
   const navigate = useNavigate();
@@ -29,6 +55,7 @@ export function RoutineSummaryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [resumable, setResumable] = useState(false);
+  const [avgDuration, setAvgDuration] = useState<number | null>(null);
 
   const loadRoutine = useCallback(async () => {
     if (!routineId) {
@@ -39,10 +66,20 @@ export function RoutineSummaryPage() {
 
     setError(null);
     setResumable(hasWorkoutProgress(routineId));
+    setAvgDuration(null);
 
     try {
-      const result = await getRoutineById(routineId);
+      const [result, sessions] = await Promise.all([
+        getRoutineById(routineId),
+        getWorkoutSessions(routineId),
+      ]);
+
       setRoutine(result);
+
+      if (sessions.length > 0) {
+        const total = sessions.reduce((sum, s) => sum + s.durationSeconds, 0);
+        setAvgDuration(Math.round(total / sessions.length));
+      }
     } catch {
       setError("No se pudo cargar la rutina");
     } finally {
@@ -80,7 +117,10 @@ export function RoutineSummaryPage() {
   }
 
   const exerciseCount = routine.exercises.length;
-  const estimatedMin = estimateMinutes(routine.exercises);
+  const estimatedMin =
+    avgDuration !== null
+      ? Math.round(avgDuration / 60)
+      : estimateMinutes(routine.exercises);
 
   return (
     <div className="routine-summary">
@@ -146,7 +186,7 @@ export function RoutineSummaryPage() {
                       {re.exercise.name}
                     </p>
                     <p className="routine-summary__exercise-meta">
-                      {re.sets} sets x {re.reps} reps
+                      {re.sets} sets x {repsDisplay(re.reps, re.repsList)}
                     </p>
                   </div>
 

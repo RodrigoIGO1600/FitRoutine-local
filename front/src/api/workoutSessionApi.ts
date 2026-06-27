@@ -12,8 +12,11 @@ type WorkoutSessionResponse = {
   data: WorkoutSession;
 };
 
-export async function getWorkoutSessions() {
-  const response = await apiGet<WorkoutSessionsResponse>("/workout-sessions");
+export async function getWorkoutSessions(routineId?: string) {
+  const query = routineId ? `?routineId=${encodeURIComponent(routineId)}` : "";
+  const response = await apiGet<WorkoutSessionsResponse>(
+    `/workout-sessions${query}`
+  );
   return response.data ?? [];
 }
 

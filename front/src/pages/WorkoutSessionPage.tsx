@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getRoutineById } from "../api/routineApi";
+import { updateRoutineExercise } from "../api/routineExerciseApi";
 import { createWorkoutSession } from "../api/workoutSessionApi";
 import { getMuscleGroupImage } from "../utils/muscleGroupImage";
 import { getYouTubeThumbnail } from "../utils/youtube";
@@ -103,17 +104,30 @@ export function WorkoutSessionPage() {
 
       const builtSession: WorkoutExercise[] = [...result.exercises]
         .sort((a, b) => a.order - b.order)
-        .map((re) => ({
-          routineExerciseId: re.id,
-          exercise: re.exercise,
-          restSeconds: re.restSeconds,
-          restBetweenSeconds: re.restBetweenSeconds,
-          sets: Array.from({ length: re.sets }, () => ({
-            id: createTempId(),
-            reps: re.reps,
-            completed: false,
-          })),
-        }));
+        .map((re) => {
+          const parsedRepsList = re.repsList
+            ? (() => {
+                try {
+                  const parsed = JSON.parse(re.repsList);
+                  return Array.isArray(parsed) ? parsed : null;
+                } catch {
+                  return null;
+                }
+              })()
+            : null;
+
+          return {
+            routineExerciseId: re.id,
+            exercise: re.exercise,
+            restSeconds: re.restSeconds,
+            restBetweenSeconds: re.restBetweenSeconds,
+            sets: Array.from({ length: re.sets }, (_, i) => ({
+              id: createTempId(),
+              reps: parsedRepsList?.[i] ?? re.reps,
+              completed: false,
+            })),
+          };
+        });
 
       // Merge any previously saved progress for this routine so the user can
       // resume completed sets, edited reps, current exercise and elapsed time.
@@ -338,6 +352,8 @@ export function WorkoutSessionPage() {
       return;
     }
 
+    setIsRestMinimized(false);
+
     const remaining = updatedSets.filter((set) => !set.completed).length;
     const allDone = remaining === 0;
     const isLastExercise = currentIndex === (session?.length ?? 0) - 1;
@@ -498,6 +514,29 @@ export function WorkoutSessionPage() {
         totalReps,
         totalVolume: 0,
       });
+
+      const repsUpdates = routineId
+        ? session.map((exercise) => {
+            const completedSets = exercise.sets.filter(
+              (set) => set.completed
+            );
+
+            if (completedSets.length === 0) {
+              return Promise.resolve();
+            }
+
+            const repsList = JSON.stringify(
+              completedSets.map((set) => set.reps)
+            );
+
+            return updateRoutineExercise(exercise.routineExerciseId, {
+              reps: completedSets[completedSets.length - 1].reps,
+              repsList,
+            }).catch(() => {});
+          })
+        : [];
+
+      await Promise.allSettled(repsUpdates);
 
       if (routineId) {
         clearWorkoutProgress(routineId);

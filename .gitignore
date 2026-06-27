@@ -47,6 +47,10 @@ backend/prisma/*.db-journal
 # Generated Prisma Client
 backend/src/generated/prisma/
 
+# Local graphify knowledge graph output
+graphify-out/
+**/graphify-out/
+
 # Optional local temp files
 tmp/
 temp/

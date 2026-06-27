@@ -8,11 +8,15 @@ import {
 import { parseIdParam } from "../utils/params.js";
 
 export async function getWorkoutSessionsController(
-  _req: Request,
+  req: Request,
   res: Response
 ) {
   try {
-    const sessions = await getWorkoutSessions();
+    const routineId = req.query.routineId
+      ? parseIdParam(req.query.routineId as string)
+      : undefined;
+
+    const sessions = await getWorkoutSessions(routineId ?? undefined);
 
     res.json({
       data: sessions,

@@ -140,6 +140,7 @@ export function RoutineDetailPage() {
       exerciseId: exercise.id,
       sets: DEFAULT_SETS,
       reps: DEFAULT_REPS,
+      repsList: null,
       weight: null,
       restSeconds: DEFAULT_REST_SECONDS,
       restBetweenSeconds: DEFAULT_REST_BETWEEN_SECONDS,
@@ -166,6 +167,16 @@ export function RoutineDetailPage() {
       current.map((exercise) =>
         exercise.id === exerciseRowId
           ? { ...exercise, [field]: value }
+          : exercise
+      )
+    );
+  }
+
+  function handleChangeSets(exerciseRowId: string, value: number) {
+    setExercises((current) =>
+      current.map((exercise) =>
+        exercise.id === exerciseRowId
+          ? { ...exercise, sets: value }
           : exercise
       )
     );
@@ -412,6 +423,7 @@ export function RoutineDetailPage() {
             exercises={exercises}
             onReorder={handleReorder}
             onRemove={handleRemoveExercise}
+            onChangeSets={handleChangeSets}
             onChangeRest={handleChangeRest}
           />
         )}

@@ -1,0 +1,12 @@
+{
+  "name": "fitroutine-local",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n back,front -c blue,green \"npm run dev --prefix backend\" \"npm run dev --prefix front\"",
+    "dev:back": "npm run dev --prefix backend",
+    "dev:front": "npm run dev --prefix front"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

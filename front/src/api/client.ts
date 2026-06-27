@@ -1,5 +1,4 @@
-export const API_URL =
-  import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
+export const API_URL = import.meta.env.VITE_API_URL ?? "/api";
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {

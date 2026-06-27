@@ -299,6 +299,20 @@
   font-size: 13px;
 }
 
+.routine-exercise-row__sets-stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0;
+}
+
+.routine-exercise-row__sets-value {
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 50px;
+  text-align: center;
+}
+
 .routine-exercise-row__muscle-img {
   flex-shrink: 0;
   width: 44px;

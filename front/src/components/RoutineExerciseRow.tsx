@@ -6,11 +6,15 @@ const REST_STEP = 15;
 const REST_MIN = 0;
 const REST_MAX = 600;
 
+const SETS_MIN = 1;
+const SETS_MAX = 15;
+
 type RestField = "restSeconds" | "restBetweenSeconds";
 
 type RoutineExerciseRowProps = {
   routineExercise: RoutineExercise;
   onRemove: () => void;
+  onChangeSets: (value: number) => void;
   onChangeRest: (field: RestField, value: number) => void;
 };
 
@@ -53,10 +57,31 @@ function RestStepper({ label, value, onChange }: RestStepperProps) {
 export function RoutineExerciseRow({
   routineExercise,
   onRemove,
+  onChangeSets,
   onChangeRest,
 }: RoutineExerciseRowProps) {
-  const { exercise, sets, reps, restSeconds, restBetweenSeconds } =
+  const { exercise, sets, reps, repsList, restSeconds, restBetweenSeconds } =
     routineExercise;
+
+  const parsedRepsList = repsList
+    ? (() => {
+        try {
+          const parsed = JSON.parse(repsList);
+          return Array.isArray(parsed) ? parsed : null;
+        } catch {
+          return null;
+        }
+      })()
+    : null;
+
+  const repsLabel =
+    parsedRepsList && parsedRepsList.length > 0
+      ? (() => {
+          const min = Math.min(...parsedRepsList);
+          const max = Math.max(...parsedRepsList);
+          return min === max ? `${min} reps` : `${min}-${max} reps`;
+        })()
+      : `${reps} reps`;
   const muscleImage = getMuscleGroupImage(exercise.muscleGroup);
   const thumbnail = getYouTubeThumbnail(exercise.videoUrl);
 
@@ -100,9 +125,34 @@ export function RoutineExerciseRow({
 
         <div className="routine-exercise-row__info">
           <h3 className="routine-exercise-row__name">{exercise.name}</h3>
-          <p className="routine-exercise-row__meta">
-            {sets} series · {reps} reps
-          </p>
+          <div className="routine-exercise-row__sets-stepper">
+            <button
+              type="button"
+              className="routine-exercise-row__rest-btn"
+              onClick={() =>
+                onChangeSets(Math.max(SETS_MIN, Math.min(SETS_MAX, sets - 1)))
+              }
+              disabled={sets <= SETS_MIN}
+              aria-label="Reducir series"
+            >
+              −
+            </button>
+            <span className="routine-exercise-row__sets-value">
+              {sets} series
+            </span>
+            <button
+              type="button"
+              className="routine-exercise-row__rest-btn"
+              onClick={() =>
+                onChangeSets(Math.max(SETS_MIN, Math.min(SETS_MAX, sets + 1)))
+              }
+              disabled={sets >= SETS_MAX}
+              aria-label="Aumentar series"
+            >
+              +
+            </button>
+          </div>
+          <p className="routine-exercise-row__meta">{repsLabel}</p>
         </div>
 
         {muscleImage && (
