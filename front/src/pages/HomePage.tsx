@@ -38,6 +38,9 @@ export function HomePage() {
   }, [loadRoutines]);
 
   async function handleDeleteRoutine(routineId: string) {
+    const confirmed = window.confirm("¿Borrar esta rutina? Esta acción no se puede deshacer.");
+    if (!confirmed) return;
+
     setDeletingRoutineId(routineId);
     setError(null);
 

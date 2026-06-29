@@ -6,6 +6,7 @@ export type Routine = {
   description: string | null;
   createdAt: string;
   updatedAt: string;
+  exercises?: RoutineExercise[];
 };
 
 export type RoutineExercise = {

@@ -1,0 +1,21 @@
+.desktop-layout {
+  display: flex;
+  min-height: 100dvh;
+}
+
+.desktop-layout__main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  height: 100dvh;
+}
+
+@media (max-width: 767px) {
+  .desktop-layout {
+    display: block;
+  }
+
+  .desktop-layout__main {
+    height: auto;
+  }
+}

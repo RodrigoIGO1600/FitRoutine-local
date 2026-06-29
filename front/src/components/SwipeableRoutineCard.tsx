@@ -54,7 +54,7 @@ export function SwipeableRoutineCard({
   }
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (isDeleting) {
+    if (isDeleting || window.innerWidth >= 768) {
       return;
     }
 
@@ -128,9 +128,25 @@ export function SwipeableRoutineCard({
         onPointerMove={handlePointerMove}
         onPointerUp={finishDrag}
         onPointerCancel={finishDrag}
+        onClick={() => { if (window.innerWidth >= 768) onOpen(); }}
       >
         <RoutineCard routine={routine} />
       </div>
+
+      <button
+        type="button"
+        className="swipe-row__delete-desktop"
+        onClick={onDelete}
+        disabled={isDeleting}
+        aria-label={`Borrar rutina ${routine.name}`}
+      >
+        {isDeleting ? "..." : (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+          </svg>
+        )}
+      </button>
     </div>
   );
 }

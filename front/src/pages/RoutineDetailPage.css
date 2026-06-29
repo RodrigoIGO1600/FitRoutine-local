@@ -600,3 +600,136 @@
     padding-bottom: 24px;
   }
 }
+
+@media (min-width: 768px) {
+  .routine-detail {
+    max-width: 100%;
+  }
+
+  .routine-detail__toolbar {
+    padding: 12px 24px;
+    border-bottom: none;
+  }
+
+  .routine-detail__action {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .routine-detail__action:first-child {
+    justify-self: start;
+  }
+
+  .routine-detail__action:last-child {
+    justify-self: end;
+  }
+
+  .routine-detail__toolbar-title {
+    font-size: 24px;
+    letter-spacing: 0.08em;
+  }
+
+  .routine-detail__meta {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px 24px;
+    border-bottom: none;
+    gap: 16px;
+  }
+
+  .routine-detail__input--title {
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .routine-detail__input--subtitle {
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .routine-detail__content {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 16px 32px 100px;
+  }
+
+  .sortable-exercise-list {
+    gap: 14px;
+  }
+
+  .sortable-exercise-list__item {
+    gap: 0;
+  }
+
+  .sortable-exercise-list__handle {
+    width: 40px;
+    font-size: 20px;
+    color: var(--color-text-muted);
+    border-radius: 12px 0 0 12px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .sortable-exercise-list__handle:hover {
+    color: var(--color-accent-yellow);
+    background: rgba(241, 212, 53, 0.08);
+  }
+
+  .routine-exercise-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: 0 14px 14px 0;
+  }
+
+  .routine-exercise-row__top {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .routine-exercise-row__thumbnail {
+    width: 60px;
+    height: 60px;
+  }
+
+  .routine-exercise-row__name {
+    font-size: 16px;
+  }
+
+  .routine-exercise-row__rest {
+    flex-shrink: 0;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .routine-exercise-row__rest-field {
+    padding: 6px 10px;
+  }
+
+  .routine-exercise-row__muscle-img {
+    width: 52px;
+    height: 52px;
+  }
+
+  .routine-detail__dock {
+    position: fixed;
+    left: 50%;
+    bottom: calc(24px + var(--safe-bottom));
+    transform: translateX(-50%);
+    width: auto;
+    padding: 10px 24px;
+    border-radius: 14px;
+  }
+
+  .routine-detail__dock-action {
+    flex-direction: row;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .routine-detail__dock-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 22px;
+  }
+}

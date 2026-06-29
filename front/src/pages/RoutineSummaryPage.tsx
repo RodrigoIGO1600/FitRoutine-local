@@ -133,6 +133,21 @@ export function RoutineSummaryPage() {
         >
           ←
         </button>
+
+        <div className="routine-summary__toolbar-center">
+          <h1 className="routine-summary__name">{routine.name}</h1>
+          <div className="routine-summary__stats">
+            <span className="routine-summary__stat">
+              <span className="routine-summary__stat-icon">⚡</span>
+              {exerciseCount} Ejercicios
+            </span>
+            <span className="routine-summary__stat">
+              <span className="routine-summary__stat-icon">🕐</span>
+              {estimatedMin} Min
+            </span>
+          </div>
+        </div>
+
         <button
           type="button"
           className="routine-summary__customize"
@@ -147,17 +162,18 @@ export function RoutineSummaryPage() {
       )}
 
       <section className="routine-summary__card">
-        <h1 className="routine-summary__name">{routine.name}</h1>
-
-        <div className="routine-summary__stats">
-          <span className="routine-summary__stat">
-            <span className="routine-summary__stat-icon">⚡</span>
-            {exerciseCount} Ejercicios
-          </span>
-          <span className="routine-summary__stat">
-            <span className="routine-summary__stat-icon">🕐</span>
-            {estimatedMin} Min
-          </span>
+        <div className="routine-summary__mobile-header">
+          <h1 className="routine-summary__name">{routine.name}</h1>
+          <div className="routine-summary__stats">
+            <span className="routine-summary__stat">
+              <span className="routine-summary__stat-icon">⚡</span>
+              {exerciseCount} Ejercicios
+            </span>
+            <span className="routine-summary__stat">
+              <span className="routine-summary__stat-icon">🕐</span>
+              {estimatedMin} Min
+            </span>
+          </div>
         </div>
 
         {routine.exercises.length > 0 && (
@@ -168,18 +184,20 @@ export function RoutineSummaryPage() {
 
               return (
                 <li key={re.id} className="routine-summary__exercise-row">
-                  {thumbnail ? (
-                    <img
-                      src={thumbnail}
-                      alt={re.exercise.name}
-                      className="routine-summary__exercise-thumb routine-summary__exercise-thumb--img"
-                    />
-                  ) : (
-                    <div
-                      className="routine-summary__exercise-thumb"
-                      aria-hidden="true"
-                    />
-                  )}
+                  <span className="routine-summary__exercise-order">{re.order}</span>
+                  <div className="routine-summary__exercise-thumb">
+                    {thumbnail ? (
+                      <img
+                        src={thumbnail}
+                        alt={re.exercise.name}
+                        className="routine-summary__exercise-thumb-img"
+                      />
+                    ) : (
+                      <span className="routine-summary__exercise-thumb-placeholder">
+                        {re.exercise.name.charAt(0)}
+                      </span>
+                    )}
+                  </div>
 
                   <div className="routine-summary__exercise-info">
                     <p className="routine-summary__exercise-name">
