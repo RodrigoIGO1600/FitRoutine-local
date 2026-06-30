@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createRoutine, deleteRoutine, getRoutines } from "../api/routineApi";
 import { CreateRoutineSheet } from "../components/CreateRoutineSheet";
-import { DesktopQR } from "../components/DesktopQR";
 import { SwipeableRoutineCard } from "../components/SwipeableRoutineCard";
 import type { Routine } from "../types/routine";
 import "./HomePage.css";
@@ -208,7 +207,6 @@ export function HomePage() {
         onSubmit={handleCreateRoutine}
       />
 
-      <DesktopQR />
     </div>
   );
 }

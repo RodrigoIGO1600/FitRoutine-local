@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Sidebar } from "./Sidebar";
+import { DesktopQR } from "./DesktopQR";
 import "./DesktopLayout.css";
 
 interface DesktopLayoutProps {
@@ -16,6 +17,7 @@ export function DesktopLayout({ children }: DesktopLayoutProps) {
         onToggle={() => setIsSidebarOpen((prev) => !prev)}
       />
       <main className="desktop-layout__main">{children}</main>
+      <DesktopQR />
     </div>
   );
 }
