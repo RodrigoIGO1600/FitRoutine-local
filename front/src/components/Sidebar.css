@@ -117,7 +117,7 @@
 }
 
 .sidebar__link--active {
-  background: rgba(241, 212, 53, 0.1);
+  background: rgba(37, 99, 235, 0.1);
   color: var(--color-accent-yellow);
 }
 
