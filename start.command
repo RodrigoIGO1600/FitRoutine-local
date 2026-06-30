@@ -34,20 +34,29 @@ fi
 
 echo ""
 echo "  Iniciando backend en puerto 3000..."
-cd backend && npm run dev &
+(cd backend && npm run dev) &
 BACK_PID=$!
 
 sleep 2
 
 echo "  Iniciando frontend en puerto 5173..."
-cd ../front && npm run dev &
+(cd front && npm run dev) &
 FRONT_PID=$!
 
-sleep 3
+echo ""
+echo "  Esperando a que el frontend este listo..."
+
+for i in $(seq 1 30); do
+    if curl -s http://localhost:5173 > /dev/null 2>&1; then
+        break
+    fi
+    sleep 1
+done
 
 echo "  Abriendo navegador..."
 open http://localhost:5173
 
+cd ..
 node show-url.js
 
 echo ""
