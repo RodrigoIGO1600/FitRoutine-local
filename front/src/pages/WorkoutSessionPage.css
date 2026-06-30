@@ -327,6 +327,53 @@
   color: #1a1a1a;
 }
 
+.workout__timer-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 56px;
+  height: 40px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  font-size: 15px;
+  font-weight: 700;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: background 0.15s;
+}
+
+.workout__timer-btn--active {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.workout__timer-btn:active {
+  transform: scale(0.96);
+}
+
+.workout__timer-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.workout__timer-btn-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+  line-height: 1.1;
+}
+
+.workout__timer-btn-inner > span {
+  font-size: 16px;
+}
+
 .workout__set--done .workout__set-action {
   background: rgba(30, 200, 165, 0.2);
   color: #1ec8a5;
@@ -608,7 +655,7 @@
   height: 40px;
   border: none;
   border-radius: 50%;
-  background: rgba(241, 212, 53, 0.15);
+  background: rgba(37, 99, 235, 0.15);
   color: var(--color-accent-yellow);
   -webkit-appearance: none;
   appearance: none;
@@ -749,7 +796,7 @@
   border: none;
   border-radius: 50%;
   background: rgba(28, 37, 46, 0.95);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(241, 212, 53, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(37, 99, 235, 0.3);
   cursor: pointer;
   -webkit-appearance: none;
   appearance: none;

@@ -5,7 +5,7 @@ import { updateRoutineExercise } from "../api/routineExerciseApi";
 import { createWorkoutSession } from "../api/workoutSessionApi";
 import { getMuscleGroupImage } from "../utils/muscleGroupImage";
 import { getYouTubeThumbnail } from "../utils/youtube";
-import { playRestFinished, unlockAudio } from "../utils/sound";
+import { playRestFinished, playExerciseFinished, unlockAudio } from "../utils/sound";
 import { createTempId } from "../utils/id";
 import {
   clearWorkoutProgress,
@@ -13,6 +13,7 @@ import {
   saveWorkoutProgress,
 } from "../utils/workoutStorage";
 import { RestTimer } from "../components/RestTimer";
+import { ExerciseTimer } from "../components/ExerciseTimer";
 import type { WorkoutExercise } from "../types/workout";
 import "./WorkoutSessionPage.css";
 
@@ -78,6 +79,11 @@ export function WorkoutSessionPage() {
   const [isJumpSheetOpen, setIsJumpSheetOpen] = useState(false);
   const [rest, setRest] = useState<RestState | null>(null);
   const [isRestMinimized, setIsRestMinimized] = useState(false);
+  const [exerciseTimer, setExerciseTimer] = useState<{
+    remaining: number;
+    total: number;
+    setIndex: number;
+  } | null>(null);
   const [isFinished, setIsFinished] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -119,11 +125,14 @@ export function WorkoutSessionPage() {
           return {
             routineExerciseId: re.id,
             exercise: re.exercise,
+            isTimed: re.exercise.isTimed,
+            durationSeconds: re.durationSeconds,
             restSeconds: re.restSeconds,
             restBetweenSeconds: re.restBetweenSeconds,
             sets: Array.from({ length: re.sets }, (_, i) => ({
               id: createTempId(),
-              reps: parsedRepsList?.[i] ?? re.reps,
+              reps: re.exercise.isTimed ? 1 : (parsedRepsList?.[i] ?? re.reps),
+              durationSeconds: re.exercise.isTimed ? re.durationSeconds : 0,
               completed: false,
             })),
           };
@@ -290,6 +299,49 @@ export function WorkoutSessionPage() {
       );
     }
   }, [rest, session]);
+
+  // Exercise timer tick + auto-complete at zero
+  useEffect(() => {
+    if (!exerciseTimer || exerciseTimer.remaining <= 0) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setExerciseTimer((prev) => {
+        if (!prev || prev.remaining <= 1) {
+          window.clearInterval(intervalId);
+          return prev ? { ...prev, remaining: 0 } : prev;
+        }
+        return { ...prev, remaining: prev.remaining - 1 };
+      });
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [exerciseTimer !== null]);
+
+  // React to exercise timer reaching zero
+  useEffect(() => {
+    if (!exerciseTimer || exerciseTimer.remaining > 0) {
+      return;
+    }
+
+    const exercise = session?.[currentIndex];
+    if (!exercise) return;
+
+    const setId = exercise.sets[exerciseTimer.setIndex]?.id;
+
+    // Dismiss timer first so it never gets stuck
+    setExerciseTimer(null);
+    if (setId) {
+      setSetCompleted(setId, true);
+    }
+    try {
+      playExerciseFinished();
+    } catch {
+      // AudioContext may not be available
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exerciseTimer?.remaining]);
 
   const totalReps = useMemo(() => {
     if (!session) {
@@ -469,6 +521,39 @@ export function WorkoutSessionPage() {
         };
       });
     });
+  }
+
+  function startExerciseTimer(setIndex: number) {
+    const exercise = session?.[currentIndex];
+    if (!exercise || !exercise.isTimed) return;
+
+    const duration = exercise.sets[setIndex]?.durationSeconds ?? exercise.durationSeconds;
+    setExerciseTimer({ remaining: duration, total: duration, setIndex });
+  }
+
+  function skipExerciseTimer() {
+    if (!exerciseTimer) return;
+    const exercise = session?.[currentIndex];
+    if (!exercise) return;
+
+    const setId = exercise.sets[exerciseTimer.setIndex]?.id;
+
+    setExerciseTimer(null);
+    if (setId) {
+      setSetCompleted(setId, true);
+    }
+    try {
+      playExerciseFinished();
+    } catch {
+      // AudioContext may not be available
+    }
+  }
+
+  function adjustExerciseTimer(delta: number) {
+    if (!exerciseTimer) return;
+    const newTotal = Math.max(5, exerciseTimer.total + delta);
+    const newRemaining = Math.max(0, Math.min(newTotal, exerciseTimer.remaining + delta));
+    setExerciseTimer({ ...exerciseTimer, remaining: newRemaining, total: newTotal });
   }
 
   function goToExercise(index: number) {
@@ -760,28 +845,68 @@ export function WorkoutSessionPage() {
             >
               <span className="workout__set-label">Serie {index + 1}</span>
 
-              <div className="workout__stepper">
+              {current.isTimed ? (
+                <div className="workout__stepper">
+                  <span className="workout__reps">
+                    <span className="workout__reps-value">{set.durationSeconds}s</span>
+                  </span>
+                </div>
+              ) : (
+                <div className="workout__stepper">
+                  <button
+                    type="button"
+                    className="workout__stepper-btn"
+                    onClick={() => updateSetReps(set.id, -1)}
+                    aria-label="Quitar repetición"
+                  >
+                    −
+                  </button>
+                  <span className="workout__reps">
+                    <span className="workout__reps-value">{set.reps}</span>
+                    <span className="workout__reps-unit">reps</span>
+                  </span>
+                  <button
+                    type="button"
+                    className="workout__stepper-btn"
+                    onClick={() => updateSetReps(set.id, 1)}
+                    aria-label="Añadir repetición"
+                  >
+                    +
+                  </button>
+                </div>
+              )}
+
+              {current.isTimed && !set.completed && (
                 <button
                   type="button"
-                  className="workout__stepper-btn"
-                  onClick={() => updateSetReps(set.id, -1)}
-                  aria-label="Quitar repetición"
+                  className={`workout__timer-btn${exerciseTimer && exerciseTimer.setIndex === index ? " workout__timer-btn--active" : ""}`}
+                  onClick={() => {
+                    if (exerciseTimer && exerciseTimer.setIndex === index) {
+                      skipExerciseTimer();
+                    } else if (!exerciseTimer) {
+                      startExerciseTimer(index);
+                    }
+                  }}
+                  disabled={!isActive && !exerciseTimer}
+                  aria-label={
+                    exerciseTimer && exerciseTimer.setIndex === index
+                      ? `Detener timer serie ${index + 1}`
+                      : `Iniciar timer serie ${index + 1}`
+                  }
                 >
-                  −
+                  {exerciseTimer && exerciseTimer.setIndex === index ? (
+                    <span className="workout__timer-btn-inner">
+                      <span aria-hidden="true">⏸</span>
+                      Detener
+                    </span>
+                  ) : (
+                    <span className="workout__timer-btn-inner">
+                      <span aria-hidden="true">⏱</span>
+                      Timer
+                    </span>
+                  )}
                 </button>
-                <span className="workout__reps">
-                  <span className="workout__reps-value">{set.reps}</span>
-                  <span className="workout__reps-unit">reps</span>
-                </span>
-                <button
-                  type="button"
-                  className="workout__stepper-btn"
-                  onClick={() => updateSetReps(set.id, 1)}
-                  aria-label="Añadir repetición"
-                >
-                  +
-                </button>
-              </div>
+              )}
 
               <button
                 type="button"
@@ -947,6 +1072,16 @@ export function WorkoutSessionPage() {
           </svg>
           <span className="workout__rest-minimized-time">{formatRest(rest.remaining)}</span>
         </button>
+      )}
+
+      {exerciseTimer && (
+        <ExerciseTimer
+          remaining={exerciseTimer.remaining}
+          total={exerciseTimer.total}
+          label="Tiempo de ejercicio"
+          onSkip={skipExerciseTimer}
+          onAdjust={adjustExerciseTimer}
+        />
       )}
 
       {isFinished && (

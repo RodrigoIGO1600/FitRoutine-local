@@ -30,6 +30,7 @@ export async function createRoutineExercise(input: {
   sets: number;
   reps: number;
   repsList?: string | null;
+  durationSeconds?: number;
   weight?: number | null;
   restSeconds: number;
   restBetweenSeconds?: number;
@@ -43,6 +44,7 @@ export async function createRoutineExercise(input: {
       sets: input.sets,
       reps: input.reps,
       repsList: input.repsList ?? null,
+      durationSeconds: input.durationSeconds ?? 0,
       weight: input.weight ?? null,
       restSeconds: input.restSeconds,
       restBetweenSeconds: input.restBetweenSeconds ?? 60,
@@ -61,6 +63,7 @@ export async function updateRoutineExercise(
     sets?: number;
     reps?: number;
     repsList?: string | null;
+    durationSeconds?: number;
     weight?: number | null;
     restSeconds?: number;
     restBetweenSeconds?: number;
@@ -85,6 +88,10 @@ export async function updateRoutineExercise(
         input.repsList !== undefined
           ? input.repsList
           : existingRoutineExercise.repsList,
+      durationSeconds:
+        input.durationSeconds !== undefined
+          ? input.durationSeconds
+          : existingRoutineExercise.durationSeconds,
       weight:
         input.weight !== undefined
           ? input.weight

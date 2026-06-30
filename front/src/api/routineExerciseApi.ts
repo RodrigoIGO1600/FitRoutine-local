@@ -9,6 +9,7 @@ export type UpdateRoutineExerciseInput = {
   sets?: number;
   reps?: number;
   repsList?: string | null;
+  durationSeconds?: number;
   weight?: number | null;
   restSeconds?: number;
   restBetweenSeconds?: number;

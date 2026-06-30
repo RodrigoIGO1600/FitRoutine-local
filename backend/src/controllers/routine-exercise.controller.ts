@@ -20,6 +20,7 @@ export async function createRoutineExerciseController(
     sets,
     reps,
     repsList,
+    durationSeconds,
     weight,
     restSeconds,
     restBetweenSeconds,
@@ -68,6 +69,7 @@ export async function createRoutineExerciseController(
     sets: Number(sets),
     reps: Number(reps),
     repsList: repsList ?? null,
+    durationSeconds: durationSeconds !== undefined ? Number(durationSeconds) : undefined,
     weight: weight !== undefined && weight !== null ? Number(weight) : null,
     restSeconds: Number(restSeconds),
     restBetweenSeconds:
@@ -91,6 +93,7 @@ export async function updateRoutineExerciseController(
     sets,
     reps,
     repsList,
+    durationSeconds,
     weight,
     restSeconds,
     restBetweenSeconds,
@@ -120,6 +123,8 @@ export async function updateRoutineExerciseController(
       sets: sets !== undefined ? Number(sets) : undefined,
       reps: reps !== undefined ? Number(reps) : undefined,
       repsList: repsList !== undefined ? repsList : undefined,
+      durationSeconds:
+        durationSeconds !== undefined ? Number(durationSeconds) : undefined,
       weight:
         weight === undefined
           ? undefined

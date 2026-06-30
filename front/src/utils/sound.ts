@@ -40,6 +40,16 @@ export function playRestFinished() {
   playBeep(1200, now + 0.3, 0.18);
 }
 
+export function playExerciseFinished() {
+  const ctx = getAudioContext();
+  const now = ctx.currentTime;
+
+  // 2 short + 1 long: 1200Hz, 1400Hz, 900Hz (descending finish)
+  playBeep(1200, now, 0.1);
+  playBeep(1400, now + 0.12, 0.1);
+  playBeep(900, now + 0.28, 0.25);
+}
+
 // Must be called inside a user gesture (click/touch) to unlock audio on mobile
 export function unlockAudio() {
   const ctx = getAudioContext();

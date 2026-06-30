@@ -16,6 +16,7 @@ type RoutineExerciseRowProps = {
   onRemove: () => void;
   onChangeSets: (value: number) => void;
   onChangeRest: (field: RestField, value: number) => void;
+  onChangeDuration?: (value: number) => void;
 };
 
 type RestStepperProps = {
@@ -59,9 +60,12 @@ export function RoutineExerciseRow({
   onRemove,
   onChangeSets,
   onChangeRest,
+  onChangeDuration,
 }: RoutineExerciseRowProps) {
-  const { exercise, sets, reps, repsList, restSeconds, restBetweenSeconds } =
+  const { exercise, sets, reps, repsList, durationSeconds, restSeconds, restBetweenSeconds } =
     routineExercise;
+
+  const isTimed = exercise.isTimed;
 
   const parsedRepsList = repsList
     ? (() => {
@@ -74,8 +78,9 @@ export function RoutineExerciseRow({
       })()
     : null;
 
-  const repsLabel =
-    parsedRepsList && parsedRepsList.length > 0
+  const repsLabel = isTimed
+    ? `${durationSeconds}s`
+    : parsedRepsList && parsedRepsList.length > 0
       ? (() => {
           const min = Math.min(...parsedRepsList);
           const max = Math.max(...parsedRepsList);
@@ -152,7 +157,31 @@ export function RoutineExerciseRow({
               +
             </button>
           </div>
-          <p className="routine-exercise-row__meta">{repsLabel}</p>
+          {isTimed ? (
+            <div className="routine-exercise-row__sets-stepper">
+              <button
+                type="button"
+                className="routine-exercise-row__rest-btn"
+                onClick={() => onChangeDuration?.(Math.max(5, durationSeconds - 5))}
+                aria-label="Reducir tiempo"
+              >
+                −
+              </button>
+              <span className="routine-exercise-row__sets-value">
+                {durationSeconds}s
+              </span>
+              <button
+                type="button"
+                className="routine-exercise-row__rest-btn"
+                onClick={() => onChangeDuration?.(Math.min(600, durationSeconds + 5))}
+                aria-label="Aumentar tiempo"
+              >
+                +
+              </button>
+            </div>
+          ) : (
+            <p className="routine-exercise-row__meta">{repsLabel}</p>
+          )}
         </div>
 
         {muscleImage && (

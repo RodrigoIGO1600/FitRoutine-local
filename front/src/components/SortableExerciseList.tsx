@@ -18,6 +18,7 @@ type SortableExerciseListProps = {
     field: "restSeconds" | "restBetweenSeconds",
     value: number
   ) => void;
+  onChangeDuration?: (exerciseRowId: string, value: number) => void;
   onEdit?: (exercise: RoutineExercise) => void;
 };
 
@@ -27,6 +28,7 @@ export function SortableExerciseList({
   onRemove,
   onChangeSets,
   onChangeRest,
+  onChangeDuration,
   onEdit,
 }: SortableExerciseListProps) {
   const [movedIds, setMovedIds] = useState<Set<string>>(new Set());
@@ -105,6 +107,7 @@ export function SortableExerciseList({
                 onRemove={() => onRemove(routineExercise.id)}
                 onChangeSets={(value) => onChangeSets(routineExercise.id, value)}
                 onChangeRest={(field, value) => onChangeRest(routineExercise.id, field, value)}
+                onChangeDuration={onChangeDuration ? (value) => onChangeDuration(routineExercise.id, value) : undefined}
               />
             </div>
 
@@ -129,7 +132,10 @@ export function SortableExerciseList({
                   {routineExercise.exercise.name}
                 </p>
                 <p className="sortable-exercise-list__card-meta">
-                  {routineExercise.sets} x {routineExercise.reps} reps
+                  {routineExercise.exercise.isTimed
+                    ? `${routineExercise.sets} x ${routineExercise.durationSeconds}s`
+                    : `${routineExercise.sets} x ${routineExercise.reps} reps`
+                  }
                 </p>
               </div>
               {muscleImage && (

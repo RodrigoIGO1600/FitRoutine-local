@@ -17,7 +17,7 @@ function isNonEmptyString(value: unknown): value is string {
 }
 
 export async function createExerciseController(req: Request, res: Response) {
-  const { name, category, muscleGroup, equipment, description, videoUrl } =
+  const { name, category, muscleGroup, equipment, description, videoUrl, isTimed } =
     req.body;
 
   if (
@@ -38,6 +38,7 @@ export async function createExerciseController(req: Request, res: Response) {
     equipment: equipment.trim(),
     description: isNonEmptyString(description) ? description.trim() : null,
     videoUrl: isNonEmptyString(videoUrl) ? videoUrl.trim() : null,
+    isTimed: Boolean(isTimed),
   });
 
   res.status(201).json({

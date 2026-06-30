@@ -16,6 +16,7 @@ export type CreateExerciseInput = {
   equipment: string;
   description?: string | null;
   videoUrl?: string | null;
+  isTimed?: boolean;
 };
 
 export async function getExercises() {

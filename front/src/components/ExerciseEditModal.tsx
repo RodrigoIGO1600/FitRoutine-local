@@ -20,6 +20,7 @@ type ExerciseEditModalProps = {
     field: "restSeconds" | "restBetweenSeconds",
     value: number
   ) => void;
+  onChangeDuration?: (exerciseRowId: string, value: number) => void;
   onRemove: (exerciseRowId: string) => void;
 };
 
@@ -28,15 +29,18 @@ export function ExerciseEditModal({
   onClose,
   onChangeSets,
   onChangeRest,
+  onChangeDuration,
   onRemove,
 }: ExerciseEditModalProps) {
   const [sets, setSets] = useState(0);
+  const [durationSeconds, setDurationSeconds] = useState(0);
   const [restSeconds, setRestSeconds] = useState(0);
   const [restBetweenSeconds, setRestBetweenSeconds] = useState(0);
 
   useEffect(() => {
     if (routineExercise) {
       setSets(routineExercise.sets);
+      setDurationSeconds(routineExercise.durationSeconds);
       setRestSeconds(routineExercise.restSeconds);
       setRestBetweenSeconds(routineExercise.restBetweenSeconds);
     }
@@ -75,6 +79,12 @@ export function ExerciseEditModal({
     const clamped = Math.max(REST_MIN, Math.min(REST_MAX, value));
     setRestBetweenSeconds(clamped);
     onChangeRest(routineExercise!.id, "restBetweenSeconds", clamped);
+  }
+
+  function applyDuration(value: number) {
+    const clamped = Math.max(5, Math.min(600, value));
+    setDurationSeconds(clamped);
+    onChangeDuration?.(routineExercise!.id, clamped);
   }
 
   return (
@@ -137,6 +147,29 @@ export function ExerciseEditModal({
               </button>
             </div>
           </div>
+
+          {exercise.isTimed && (
+            <div className="exercise-edit-modal__field">
+              <label className="exercise-edit-modal__label">Tiempo por serie</label>
+              <div className="exercise-edit-modal__stepper">
+                <button
+                  type="button"
+                  className="exercise-edit-modal__step-btn"
+                  onClick={() => applyDuration(durationSeconds - 5)}
+                >
+                  −
+                </button>
+                <span className="exercise-edit-modal__value">{durationSeconds}s</span>
+                <button
+                  type="button"
+                  className="exercise-edit-modal__step-btn"
+                  onClick={() => applyDuration(durationSeconds + 5)}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="exercise-edit-modal__field">
             <label className="exercise-edit-modal__label">Descanso entre series</label>

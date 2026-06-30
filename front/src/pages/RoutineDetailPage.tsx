@@ -20,12 +20,14 @@ import "./RoutineDetailPage.css";
 
 const DEFAULT_SETS = 3;
 const DEFAULT_REPS = 10;
+const DEFAULT_DURATION_SECONDS = 30;
 const DEFAULT_REST_SECONDS = 90;
 const DEFAULT_REST_BETWEEN_SECONDS = 60;
 
 type SavedRestFields = {
   sets: number;
   reps: number;
+  durationSeconds: number;
   restSeconds: number;
   restBetweenSeconds: number;
 };
@@ -70,6 +72,7 @@ export function RoutineDetailPage() {
       return (
         saved.sets !== e.sets ||
         saved.reps !== e.reps ||
+        saved.durationSeconds !== e.durationSeconds ||
         saved.restSeconds !== e.restSeconds ||
         saved.restBetweenSeconds !== e.restBetweenSeconds
       );
@@ -111,6 +114,7 @@ export function RoutineDetailPage() {
           {
             sets: e.sets,
             reps: e.reps,
+            durationSeconds: e.durationSeconds,
             restSeconds: e.restSeconds,
             restBetweenSeconds: e.restBetweenSeconds,
           },
@@ -148,8 +152,9 @@ export function RoutineDetailPage() {
       routineId,
       exerciseId: exercise.id,
       sets: DEFAULT_SETS,
-      reps: DEFAULT_REPS,
+      reps: exercise.isTimed ? 1 : DEFAULT_REPS,
       repsList: null,
+      durationSeconds: exercise.isTimed ? DEFAULT_DURATION_SECONDS : 0,
       weight: null,
       restSeconds: DEFAULT_REST_SECONDS,
       restBetweenSeconds: DEFAULT_REST_BETWEEN_SECONDS,
@@ -186,6 +191,16 @@ export function RoutineDetailPage() {
       current.map((exercise) =>
         exercise.id === exerciseRowId
           ? { ...exercise, sets: value }
+          : exercise
+      )
+    );
+  }
+
+  function handleChangeDuration(exerciseRowId: string, value: number) {
+    setExercises((current) =>
+      current.map((exercise) =>
+        exercise.id === exerciseRowId
+          ? { ...exercise, durationSeconds: value }
           : exercise
       )
     );
@@ -262,6 +277,7 @@ export function RoutineDetailPage() {
           exerciseId: pending.exerciseId,
           sets: pending.sets,
           reps: pending.reps,
+          durationSeconds: pending.durationSeconds,
           weight: pending.weight,
           restSeconds: pending.restSeconds,
           restBetweenSeconds: pending.restBetweenSeconds,
@@ -320,6 +336,7 @@ export function RoutineDetailPage() {
           {
             sets: e.sets,
             reps: e.reps,
+            durationSeconds: e.durationSeconds,
             restSeconds: e.restSeconds,
             restBetweenSeconds: e.restBetweenSeconds,
           },
@@ -436,6 +453,7 @@ export function RoutineDetailPage() {
             onRemove={handleRemoveExercise}
             onChangeSets={handleChangeSets}
             onChangeRest={handleChangeRest}
+            onChangeDuration={handleChangeDuration}
             onEdit={setEditingExercise}
           />
         )}
@@ -470,6 +488,7 @@ export function RoutineDetailPage() {
         onClose={() => setEditingExercise(null)}
         onChangeSets={handleChangeSets}
         onChangeRest={handleChangeRest}
+        onChangeDuration={handleChangeDuration}
         onRemove={handleRemoveExercise}
       />
     </div>

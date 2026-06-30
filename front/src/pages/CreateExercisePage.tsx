@@ -53,6 +53,7 @@ export function CreateExercisePage() {
   const [muscleGroup, setMuscleGroup] = useState("");
   const [category, setCategory] = useState("strength");
   const [equipment, setEquipment] = useState("");
+  const [isTimed, setIsTimed] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,15 +65,8 @@ export function CreateExercisePage() {
     const trimmedUrl = videoUrl.trim();
     const trimmedDescription = description.trim();
 
-    if (
-      !trimmedName ||
-      !trimmedUrl ||
-      !trimmedDescription ||
-      !muscleGroup ||
-      !category ||
-      !equipment
-    ) {
-      setError("Todos los campos son obligatorios.");
+    if (!trimmedName || !trimmedUrl || !muscleGroup || !category || !equipment) {
+      setError("Todos los campos son obligatorios menos la descripción.");
       return;
     }
 
@@ -90,8 +84,9 @@ export function CreateExercisePage() {
         category,
         muscleGroup,
         equipment,
-        description: trimmedDescription,
+        description: trimmedDescription || null,
         videoUrl: trimmedUrl,
+        isTimed,
       });
 
       navigate(-1);
@@ -193,8 +188,27 @@ export function CreateExercisePage() {
           </select>
         </label>
 
+        <label className="create-exercise__field create-exercise__toggle-field">
+          <span className="create-exercise__label">Ejercicio de tiempo</span>
+          <button
+            type="button"
+            className={`create-exercise__toggle ${isTimed ? "create-exercise__toggle--active" : ""}`}
+            onClick={() => setIsTimed((prev) => !prev)}
+            role="switch"
+            aria-checked={isTimed}
+          >
+            <span className="create-exercise__toggle-knob" />
+          </button>
+        </label>
+
+        {isTimed && (
+          <p className="create-exercise__hint">
+            Este ejercicio se mide por tiempo (ej. plank, sentadilla isométrica).
+          </p>
+        )}
+
         <label className="create-exercise__field">
-          <span className="create-exercise__label">Descripción</span>
+          <span className="create-exercise__label">Descripción (opcional)</span>
           <textarea
             className="create-exercise__input create-exercise__textarea"
             value={description}

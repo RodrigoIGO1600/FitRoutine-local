@@ -124,3 +124,58 @@ select.create-exercise__input {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.create-exercise__toggle-field {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.create-exercise__toggle {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.create-exercise__toggle--active {
+  background: var(--color-accent-yellow);
+}
+
+.create-exercise__toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  pointer-events: none;
+}
+
+.create-exercise__toggle--active .create-exercise__toggle-knob {
+  transform: translateX(20px);
+}
+
+.create-exercise__hint {
+  margin: -8px 0 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+@media (max-width: 767px) {
+  .create-exercise__back {
+    width: 44px;
+    height: 44px;
+    font-size: 30px;
+  }
+}

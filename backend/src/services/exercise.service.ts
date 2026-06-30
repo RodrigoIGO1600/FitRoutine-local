@@ -15,6 +15,7 @@ export async function createExercise(input: {
   equipment: string;
   description?: string | null;
   videoUrl?: string | null;
+  isTimed?: boolean;
 }) {
   return prisma.exercise.create({
     data: {
@@ -24,6 +25,7 @@ export async function createExercise(input: {
       equipment: input.equipment,
       description: input.description ?? null,
       videoUrl: input.videoUrl ?? null,
+      isTimed: input.isTimed ?? false,
     },
   });
 }

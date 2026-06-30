@@ -4,7 +4,8 @@ export type Exercise = {
   category: string;
   muscleGroup: string;
   equipment: string;
-  description: string;
+  description: string | null;
   videoUrl: string | null;
+  isTimed: boolean;
   createdAt: string;
 };
