@@ -938,7 +938,20 @@
   }
 
   .workout__stats {
-    padding: 18px 24px;
+    padding: 24px 24px;
+    gap: 40px;
+  }
+
+  .workout__stat {
+    min-width: 120px;
+  }
+
+  .workout__stat-label {
+    font-size: 15px;
+  }
+
+  .workout__stat-value {
+    font-size: 32px;
   }
 
   .workout__exercise {
