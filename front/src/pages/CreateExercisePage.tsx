@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { Icon } from "@iconify/react";
 import { createExercise } from "../api/exerciseApi";
 import "./CreateExercisePage.css";
 
@@ -110,7 +111,7 @@ export function CreateExercisePage() {
           aria-label="Volver"
           disabled={isSubmitting}
         >
-          ←
+          <Icon icon="solar:arrow-left-linear" />
         </button>
         <h1 className="create-exercise__title">Nuevo ejercicio</h1>
         <span className="create-exercise__toolbar-spacer" aria-hidden="true" />

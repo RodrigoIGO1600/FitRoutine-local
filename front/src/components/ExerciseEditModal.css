@@ -1,0 +1,172 @@
+.exercise-edit-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+}
+
+.exercise-edit-modal {
+  position: relative;
+  width: min(420px, 90vw);
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 28px;
+  border-radius: 20px;
+  background: #1e2a36;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+.exercise-edit-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.exercise-edit-modal__close:hover {
+  color: var(--color-text);
+}
+
+.exercise-edit-modal__header {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.exercise-edit-modal__thumb {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.exercise-edit-modal__thumb--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text-muted);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.exercise-edit-modal__title-group {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.exercise-edit-modal__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.exercise-edit-modal__subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.exercise-edit-modal__muscle {
+  width: 28px;
+  height: 28px;
+  margin-top: 4px;
+  object-fit: contain;
+  opacity: 0.8;
+}
+
+.exercise-edit-modal__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.exercise-edit-modal__field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.exercise-edit-modal__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.exercise-edit-modal__stepper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.exercise-edit-modal__step-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.exercise-edit-modal__step-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.exercise-edit-modal__step-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.exercise-edit-modal__value {
+  min-width: 40px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.exercise-edit-modal__remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 80, 80, 0.1);
+  color: #ff6b6b;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.exercise-edit-modal__remove:hover {
+  background: rgba(255, 80, 80, 0.2);
+}

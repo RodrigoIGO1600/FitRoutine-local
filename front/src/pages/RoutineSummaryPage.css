@@ -124,7 +124,9 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
-.routine-summary__exercise-thumb--img {
+.routine-summary__exercise-thumb-img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   background: none;
 }
@@ -200,17 +202,19 @@
   margin-top: 10px;
   padding: 12px;
   border: none;
-  background: transparent;
-  color: var(--color-text-muted);
-  font-size: 13px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.80);
+  color: #1a1a1a;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   -webkit-appearance: none;
   appearance: none;
+  transition: background 0.15s;
 }
 
 .routine-summary__restart-btn:active {
-  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.50);
 }
 
 @media (min-width: 481px) {
@@ -390,6 +394,6 @@
 
   .routine-summary__restart-btn {
     margin-top: 0;
-    font-size: 13px;
+    font-size: 14px;
   }
 }

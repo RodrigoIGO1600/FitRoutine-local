@@ -108,7 +108,7 @@ export function AddExerciseSheet({
                 className="exercise-picker__back-btn"
                 onClick={handleBack}
               >
-                ← Grupos
+                <Icon icon="solar:arrow-left-linear" /> Grupos
               </button>
               <h2 id="add-exercise-title">
                 {getMuscleGroupLabel(selectedGroup)}

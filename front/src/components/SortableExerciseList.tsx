@@ -1,11 +1,12 @@
-import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { flushSync } from "react-dom";
+import { useState, useEffect, useRef } from "react";
+import { Icon } from "@iconify/react";
 import { RoutineExerciseRow } from "./RoutineExerciseRow";
 import type { RoutineExercise } from "../types/routine";
 import { applyExerciseOrder, reorderArray } from "../utils/reorder";
+import { getYouTubeThumbnail } from "../utils/youtube";
+import { getMuscleGroupImage } from "../utils/muscleGroupImage";
 
-const FLIP_DURATION_MS = 220;
-const FLIP_EASING = "cubic-bezier(0.2, 0, 0, 1)";
+const REORDER_ANIMATION_MS = 250;
 
 type SortableExerciseListProps = {
   exercises: RoutineExercise[];
@@ -17,14 +18,7 @@ type SortableExerciseListProps = {
     field: "restSeconds" | "restBetweenSeconds",
     value: number
   ) => void;
-};
-
-type DragState = {
-  pointerId: number;
-  draggedId: string;
-  grabOffset: number;
-  offsetY: number;
-  phase: "dragging" | "settling";
+  onEdit?: (exercise: RoutineExercise) => void;
 };
 
 export function SortableExerciseList({
@@ -33,230 +27,135 @@ export function SortableExerciseList({
   onRemove,
   onChangeSets,
   onChangeRest,
+  onEdit,
 }: SortableExerciseListProps) {
-  const [dragState, setDragState] = useState<DragState | null>(null);
-  const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
-  const dragStateRef = useRef<DragState | null>(null);
-  // Fixed Y position (viewport top) of each slot, captured when the drag starts.
-  // Slots never move during a drag, only the items occupying them do, so these
-  // stay accurate and are immune to in-flight FLIP animations.
-  const slotTopsRef = useRef<number[]>([]);
+  const [movedIds, setMovedIds] = useState<Set<string>>(new Set());
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  dragStateRef.current = dragState;
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
-  function animateNeighbors(
-    previousOrder: RoutineExercise[],
-    nextOrder: RoutineExercise[],
-    draggedId: string
-  ) {
-    const slotTops = slotTopsRef.current;
-
-    nextOrder.forEach((exercise, newIndex) => {
-      if (exercise.id === draggedId) {
-        return;
-      }
-
-      const oldIndex = previousOrder.findIndex((e) => e.id === exercise.id);
-
-      if (oldIndex === -1) {
-        return;
-      }
-
-      const deltaY = slotTops[oldIndex] - slotTops[newIndex];
-
-      if (Math.abs(deltaY) < 1) {
-        return;
-      }
-
-      const element = itemRefs.current[newIndex];
-
-      if (!element) {
-        return;
-      }
-
-      element.style.transition = "none";
-      element.style.transform = `translateY(${deltaY}px)`;
-
-      requestAnimationFrame(() => {
-        element.style.transition = `transform ${FLIP_DURATION_MS}ms ${FLIP_EASING}`;
-        element.style.transform = "";
-      });
-    });
+  function markMoved(ids: string[]) {
+    setMovedIds(new Set(ids));
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setMovedIds(new Set()), REORDER_ANIMATION_MS);
   }
 
-  function handleDragStart(
-    index: number,
-    event: ReactPointerEvent<HTMLButtonElement>
-  ) {
-    const draggedId = exercises[index]?.id;
-
-    if (!draggedId) {
-      return;
-    }
-
-    event.preventDefault();
-
-    const slotTops = exercises.map(
-      (_, slotIndex) =>
-        itemRefs.current[slotIndex]?.getBoundingClientRect().top ?? 0
-    );
-    slotTopsRef.current = slotTops;
-
-    const nextDragState: DragState = {
-      pointerId: event.pointerId,
-      draggedId,
-      grabOffset: event.clientY - slotTops[index],
-      offsetY: 0,
-      phase: "dragging",
-    };
-
-    dragStateRef.current = nextDragState;
-    setDragState(nextDragState);
-    event.currentTarget.setPointerCapture(event.pointerId);
+  function handleMoveUp(index: number) {
+    if (index === 0) return;
+    const current = exercises[index];
+    const displaced = exercises[index - 1];
+    const reordered = applyExerciseOrder(reorderArray(exercises, index, index - 1));
+    onReorder(reordered);
+    markMoved([current.id, displaced.id]);
   }
 
-  function handleDragMove(event: ReactPointerEvent<HTMLButtonElement>) {
-    const currentDrag = dragStateRef.current;
-
-    if (!currentDrag || currentDrag.pointerId !== event.pointerId) {
-      return;
-    }
-
-    const slotTops = slotTopsRef.current;
-    let dragIndex = exercises.findIndex((e) => e.id === currentDrag.draggedId);
-
-    if (dragIndex === -1) {
-      return;
-    }
-
-    // Where the top of the dragged card should sit so it stays under the finger.
-    const desiredTop = event.clientY - currentDrag.grabOffset;
-
-    let targetIndex = dragIndex;
-    const belowIndex = dragIndex + 1;
-    const aboveIndex = dragIndex - 1;
-
-    if (
-      belowIndex < slotTops.length &&
-      desiredTop > (slotTops[dragIndex] + slotTops[belowIndex]) / 2
-    ) {
-      targetIndex = belowIndex;
-    } else if (
-      aboveIndex >= 0 &&
-      desiredTop < (slotTops[dragIndex] + slotTops[aboveIndex]) / 2
-    ) {
-      targetIndex = aboveIndex;
-    }
-
-    if (targetIndex !== dragIndex) {
-      const previousOrder = exercises;
-      const reordered = applyExerciseOrder(
-        reorderArray(exercises, dragIndex, targetIndex)
-      );
-
-      flushSync(() => {
-        onReorder(reordered);
-      });
-
-      animateNeighbors(previousOrder, reordered, currentDrag.draggedId);
-      dragIndex = targetIndex;
-    }
-
-    const offsetY = desiredTop - slotTops[dragIndex];
-
-    // Apply the transform imperatively first to avoid a one-frame flash where the
-    // dragged card sits in its new slot with the previous offset.
-    const draggedElement = itemRefs.current[dragIndex];
-    if (draggedElement) {
-      draggedElement.style.transform = `translateY(${offsetY}px) scale(1.02)`;
-    }
-
-    const nextDragState: DragState = {
-      ...currentDrag,
-      offsetY,
-      phase: "dragging",
-    };
-
-    dragStateRef.current = nextDragState;
-    setDragState(nextDragState);
+  function handleMoveDown(index: number) {
+    if (index === exercises.length - 1) return;
+    const current = exercises[index];
+    const displaced = exercises[index + 1];
+    const reordered = applyExerciseOrder(reorderArray(exercises, index, index + 1));
+    onReorder(reordered);
+    markMoved([current.id, displaced.id]);
   }
 
-  function finishDrag(event: ReactPointerEvent<HTMLButtonElement>) {
-    const currentDrag = dragStateRef.current;
-
-    if (!currentDrag || currentDrag.pointerId !== event.pointerId) {
-      return;
-    }
-
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-
-    const settlingState: DragState = {
-      ...currentDrag,
-      offsetY: 0,
-      phase: "settling",
-    };
-
-    dragStateRef.current = settlingState;
-    setDragState(settlingState);
-
-    window.setTimeout(() => {
-      dragStateRef.current = null;
-      setDragState(null);
-    }, FLIP_DURATION_MS);
+  function getAnimationClass(id: string): string {
+    if (!movedIds.has(id)) return "";
+    return "sortable-exercise-list__item--moved";
   }
 
   return (
-    <ul
-      className={`sortable-exercise-list${
-        dragState ? " sortable-exercise-list--dragging" : ""
-      }`}
-    >
+    <ul className="sortable-exercise-list">
       {exercises.map((routineExercise, index) => {
-        const isActive = routineExercise.id === dragState?.draggedId;
-        const isDragging = isActive && dragState?.phase === "dragging";
+        const thumbnail = getYouTubeThumbnail(routineExercise.exercise.videoUrl);
+        const muscleImage = getMuscleGroupImage(routineExercise.exercise.muscleGroup);
 
         return (
           <li
             key={routineExercise.id}
-            ref={(element) => {
-              itemRefs.current[index] = element;
-            }}
-            className={`sortable-exercise-list__item${
-              isActive ? " sortable-exercise-list__item--active" : ""
-            }${isDragging ? " sortable-exercise-list__item--dragging" : ""}`}
-            style={
-              isActive && dragState
-                ? {
-                    transform: `translateY(${dragState.offsetY}px) scale(1.02)`,
-                    zIndex: 2,
-                  }
-                : undefined
-            }
+            className={`sortable-exercise-list__item ${getAnimationClass(routineExercise.id)}`}
           >
+            {/* Mobile view */}
+            <div className="sortable-exercise-list__mobile">
+              <div className="sortable-exercise-list__mobile-arrows">
+                <button
+                  type="button"
+                  className="sortable-exercise-list__arrow"
+                  onClick={() => handleMoveUp(index)}
+                  disabled={index === 0}
+                  aria-label="Mover arriba"
+                >
+                  <Icon icon="solar:alt-arrow-up-linear" width={16} />
+                </button>
+                <button
+                  type="button"
+                  className="sortable-exercise-list__arrow"
+                  onClick={() => handleMoveDown(index)}
+                  disabled={index === exercises.length - 1}
+                  aria-label="Mover abajo"
+                >
+                  <Icon icon="solar:alt-arrow-down-linear" width={16} />
+                </button>
+              </div>
+              <RoutineExerciseRow
+                routineExercise={routineExercise}
+                onRemove={() => onRemove(routineExercise.id)}
+                onChangeSets={(value) => onChangeSets(routineExercise.id, value)}
+                onChangeRest={(field, value) => onChangeRest(routineExercise.id, field, value)}
+              />
+            </div>
+
+            {/* Desktop card view */}
             <button
               type="button"
-              className="sortable-exercise-list__handle"
-              aria-label={`Reordenar ${routineExercise.exercise.name}`}
-              onPointerDown={(event) => handleDragStart(index, event)}
-              onPointerMove={handleDragMove}
-              onPointerUp={finishDrag}
-              onPointerCancel={finishDrag}
+              className="sortable-exercise-list__desktop-card"
+              onClick={() => onEdit?.(routineExercise)}
             >
-              <span aria-hidden="true">⠿</span>
+              <span className="sortable-exercise-list__card-order">
+                {routineExercise.order}
+              </span>
+              {thumbnail ? (
+                <img src={thumbnail} alt="" className="sortable-exercise-list__card-thumb" />
+              ) : (
+                <div className="sortable-exercise-list__card-thumb sortable-exercise-list__card-thumb--empty">
+                  {routineExercise.exercise.name.charAt(0)}
+                </div>
+              )}
+              <div className="sortable-exercise-list__card-info">
+                <p className="sortable-exercise-list__card-name">
+                  {routineExercise.exercise.name}
+                </p>
+                <p className="sortable-exercise-list__card-meta">
+                  {routineExercise.sets} x {routineExercise.reps} reps
+                </p>
+              </div>
+              {muscleImage && (
+                <img src={muscleImage} alt="" className="sortable-exercise-list__card-muscle" />
+              )}
+              <div className="sortable-exercise-list__card-arrows" onClick={(e) => e.stopPropagation()}>
+                <button
+                  type="button"
+                  className="sortable-exercise-list__arrow"
+                  onClick={() => handleMoveUp(index)}
+                  disabled={index === 0}
+                  aria-label="Mover izquierda"
+                >
+                  <Icon icon="solar:alt-arrow-left-linear" width={16} />
+                </button>
+                <button
+                  type="button"
+                  className="sortable-exercise-list__arrow"
+                  onClick={() => handleMoveDown(index)}
+                  disabled={index === exercises.length - 1}
+                  aria-label="Mover derecha"
+                >
+                  <Icon icon="solar:alt-arrow-right-linear" width={16} />
+                </button>
+              </div>
             </button>
-
-            <RoutineExerciseRow
-              routineExercise={routineExercise}
-              onRemove={() => onRemove(routineExercise.id)}
-              onChangeSets={(value) =>
-                onChangeSets(routineExercise.id, value)
-              }
-              onChangeRest={(field, value) =>
-                onChangeRest(routineExercise.id, field, value)
-              }
-            />
           </li>
         );
       })}

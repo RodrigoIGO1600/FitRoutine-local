@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Icon } from "@iconify/react";
 import { getRoutineById } from "../api/routineApi";
 import { getWorkoutSessions } from "../api/workoutSessionApi";
 import { getMuscleGroupImage } from "../utils/muscleGroupImage";
@@ -131,7 +132,7 @@ export function RoutineSummaryPage() {
           onClick={() => navigate("/")}
           aria-label="Volver"
         >
-          ←
+          <Icon icon="solar:arrow-left-linear" />
         </button>
 
         <div className="routine-summary__toolbar-center">
@@ -251,6 +252,7 @@ export function RoutineSummaryPage() {
               navigate(`/routines/${routineId}/workout`);
             }}
           >
+            <Icon icon="solar:restart-linear" style={{ verticalAlign: "middle", marginRight: "6px" }} />
             Empezar de cero
           </button>
         )}

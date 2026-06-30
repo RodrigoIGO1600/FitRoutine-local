@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Icon } from "@iconify/react";
 import {
   deleteWorkoutSession,
   getWorkoutSessions,
@@ -92,7 +93,7 @@ export function HistoryPage() {
           onClick={() => navigate("/")}
           aria-label="Volver"
         >
-          ←
+          <Icon icon="solar:arrow-left-linear" />
         </button>
         <h1 className="history__title">Historial</h1>
         <span className="history__toolbar-spacer" aria-hidden="true" />

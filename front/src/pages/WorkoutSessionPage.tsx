@@ -705,6 +705,48 @@ export function WorkoutSessionPage() {
         )}
       </section>
 
+      {currentIndex > 0 && (
+        <div className="workout__preview workout__preview--prev" aria-hidden="true">
+          {(() => {
+            const prev = session[currentIndex - 1];
+            const prevThumb = getYouTubeThumbnail(prev.exercise.videoUrl);
+            const prevMuscle = getMuscleGroupImage(prev.exercise.muscleGroup);
+            return (
+              <>
+                {prevThumb && (
+                  <img src={prevThumb} alt="" className="workout__preview-thumb" />
+                )}
+                <span className="workout__preview-name">{prev.exercise.name}</span>
+                {prevMuscle && (
+                  <img src={prevMuscle} alt="" className="workout__preview-muscle" />
+                )}
+              </>
+            );
+          })()}
+        </div>
+      )}
+
+      {currentIndex < session.length - 1 && (
+        <div className="workout__preview workout__preview--next" aria-hidden="true">
+          {(() => {
+            const next = session[currentIndex + 1];
+            const nextThumb = getYouTubeThumbnail(next.exercise.videoUrl);
+            const nextMuscle = getMuscleGroupImage(next.exercise.muscleGroup);
+            return (
+              <>
+                {nextThumb && (
+                  <img src={nextThumb} alt="" className="workout__preview-thumb" />
+                )}
+                <span className="workout__preview-name">{next.exercise.name}</span>
+                {nextMuscle && (
+                  <img src={nextMuscle} alt="" className="workout__preview-muscle" />
+                )}
+              </>
+            );
+          })()}
+        </div>
+      )}
+
       <main className="workout__sets">
         {current.sets.map((set, index) => {
           const isActive = index === activeSetIndex;

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Icon } from "@iconify/react";
 import {
   addExerciseToRoutine,
   deleteRoutineExercise,
@@ -8,6 +9,7 @@ import {
 } from "../api/routineExerciseApi";
 import { getRoutineById, updateRoutine } from "../api/routineApi";
 import { AddExerciseSheet } from "../components/AddExerciseSheet";
+import { ExerciseEditModal } from "../components/ExerciseEditModal";
 import { SortableExerciseList } from "../components/SortableExerciseList";
 import type { Exercise } from "../types/exercise";
 import type { RoutineDetail, RoutineExercise } from "../types/routine";
@@ -22,6 +24,8 @@ const DEFAULT_REST_SECONDS = 90;
 const DEFAULT_REST_BETWEEN_SECONDS = 60;
 
 type SavedRestFields = {
+  sets: number;
+  reps: number;
   restSeconds: number;
   restBetweenSeconds: number;
 };
@@ -38,6 +42,7 @@ export function RoutineDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [editingExercise, setEditingExercise] = useState<RoutineExercise | null>(null);
 
   const savedExerciseIdsRef = useRef<Set<string>>(new Set());
   const savedOrderIdsRef = useRef<string[]>([]);
@@ -63,6 +68,8 @@ export function RoutineDetailPage() {
       const saved = savedRestFieldsRef.current.get(e.id);
       if (!saved) return false;
       return (
+        saved.sets !== e.sets ||
+        saved.reps !== e.reps ||
         saved.restSeconds !== e.restSeconds ||
         saved.restBetweenSeconds !== e.restBetweenSeconds
       );
@@ -102,6 +109,8 @@ export function RoutineDetailPage() {
         sortedExercises.map((e) => [
           e.id,
           {
+            sets: e.sets,
+            reps: e.reps,
             restSeconds: e.restSeconds,
             restBetweenSeconds: e.restBetweenSeconds,
           },
@@ -309,6 +318,8 @@ export function RoutineDetailPage() {
         resolvedExercises.map((e) => [
           e.id,
           {
+            sets: e.sets,
+            reps: e.reps,
             restSeconds: e.restSeconds,
             restBetweenSeconds: e.restBetweenSeconds,
           },
@@ -425,6 +436,7 @@ export function RoutineDetailPage() {
             onRemove={handleRemoveExercise}
             onChangeSets={handleChangeSets}
             onChangeRest={handleChangeRest}
+            onEdit={setEditingExercise}
           />
         )}
       </main>
@@ -435,9 +447,11 @@ export function RoutineDetailPage() {
           className="routine-detail__dock-action"
           onClick={() => setIsSheetOpen(true)}
         >
-          <span className="routine-detail__dock-icon" aria-hidden="true">
-            +
-          </span>
+          <Icon
+            icon="solar:add-circle-linear"
+            className="routine-detail__dock-icon"
+            aria-hidden="true"
+          />
           <span>Añadir ejercicio</span>
         </button>
       </footer>
@@ -449,6 +463,14 @@ export function RoutineDetailPage() {
         onClose={() => setIsSheetOpen(false)}
         onSelect={handleAddExercise}
         onDeselect={handleDeselectExercise}
+      />
+
+      <ExerciseEditModal
+        routineExercise={editingExercise}
+        onClose={() => setEditingExercise(null)}
+        onChangeSets={handleChangeSets}
+        onChangeRest={handleChangeRest}
+        onRemove={handleRemoveExercise}
       />
     </div>
   );

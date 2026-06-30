@@ -460,6 +460,10 @@
   color: var(--color-text-muted);
 }
 
+.workout__preview {
+  display: none;
+}
+
 .workout__rest-overlay {
   position: fixed;
   inset: 0;
@@ -912,4 +916,176 @@
 
 .workout__finish-links--single {
   justify-content: center;
+}
+
+@media (min-width: 769px) {
+  .workout {
+    max-width: 100%;
+    min-height: 100dvh;
+    grid-template-rows: auto auto 1fr auto;
+  }
+
+  .workout__bar {
+    padding: 14px 24px;
+  }
+
+  .workout__bar-btn {
+    font-size: 16px;
+  }
+
+  .workout__progress-label {
+    font-size: 14px;
+  }
+
+  .workout__stats {
+    padding: 18px 24px;
+  }
+
+  .workout__exercise {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 32px 24px 16px;
+    max-width: 600px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+  }
+
+  .workout__exercise-thumb,
+  .workout__exercise-thumb-link {
+    width: 140px;
+    height: 140px;
+    border-radius: 16px;
+    order: 0;
+  }
+
+  .workout__exercise-info {
+    order: 1;
+    align-items: center;
+  }
+
+  .workout__exercise-name {
+    font-size: 26px;
+    text-align: center;
+  }
+
+  .workout__exercise-badge {
+    font-size: 12px;
+    align-self: center;
+  }
+
+  .workout__exercise-muscle {
+    display: none;
+  }
+
+  .workout__sets {
+    max-width: 520px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 12px 24px 32px;
+  }
+
+  .workout__set {
+    padding: 16px 20px;
+  }
+
+  .workout__footer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 14px 24px 24px;
+    background: transparent;
+  }
+
+  .workout__log-btn {
+    position: relative;
+    z-index: 1;
+    width: auto;
+    min-height: 0;
+    padding: 12px 32px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+
+  .workout__footer-links {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    pointer-events: none;
+  }
+
+  .workout__footer-links > * {
+    pointer-events: auto;
+  }
+
+  .workout__text-btn {
+    font-size: 14px;
+  }
+
+  .workout__preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    padding: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    background: rgba(28, 37, 46, 0.9);
+    backdrop-filter: blur(8px);
+    width: 160px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+
+  .workout__preview:hover {
+    opacity: 1;
+  }
+
+  .workout__preview--prev {
+    left: 80px;
+  }
+
+  .sidebar--open ~ .desktop-layout__main .workout__preview--prev {
+    left: 240px;
+  }
+
+  .workout__preview--next {
+    right: 30px;
+  }
+
+  .workout__preview-thumb {
+    width: 132px;
+    height: 74px;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+
+  .workout__preview-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .workout__preview-muscle {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    opacity: 0.8;
+  }
 }
