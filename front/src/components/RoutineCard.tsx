@@ -4,6 +4,7 @@ import { getRoutineInitials } from "../utils/routine";
 import { getYouTubeThumbnail } from "../utils/youtube";
 import { getMuscleGroupImage } from "../utils/muscleGroupImage";
 import { muscleLabel } from "../utils/muscleGroupLabel";
+import { useTranslation } from "../context/LanguageContext";
 
 type RoutineCardProps = {
   routine: Routine;
@@ -11,6 +12,7 @@ type RoutineCardProps = {
 };
 
 export function RoutineCard({ routine, onClick }: RoutineCardProps) {
+  const { language } = useTranslation();
   const initials = getRoutineInitials(routine.name);
   const exercises = routine.exercises ?? [];
 
@@ -23,11 +25,11 @@ export function RoutineCard({ routine, onClick }: RoutineCardProps) {
       seen.add(key);
       const image = getMuscleGroupImage(re.exercise.muscleGroup);
       if (image) {
-        result.push({ key, image, label: muscleLabel(re.exercise.muscleGroup) });
+        result.push({ key, image, label: muscleLabel(re.exercise.muscleGroup, language) });
       }
     }
     return result;
-  }, [exercises]);
+  }, [exercises, language]);
 
   return (
     <div
@@ -102,7 +104,7 @@ export function RoutineCard({ routine, onClick }: RoutineCardProps) {
                   />
                 )}
                 <span className="routine-card__exercise-muscle-label">
-                  {muscleLabel(re.exercise.muscleGroup)}
+                  {muscleLabel(re.exercise.muscleGroup, language)}
                 </span>
               </div>
             );

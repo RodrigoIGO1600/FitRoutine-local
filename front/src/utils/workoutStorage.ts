@@ -5,6 +5,7 @@ const STORAGE_VERSION = 1;
 
 type StoredSet = {
   reps: number;
+  durationSeconds: number;
   completed: boolean;
 };
 
@@ -45,6 +46,7 @@ export function saveWorkoutProgress(
         routineExerciseId: exercise.routineExerciseId,
         sets: exercise.sets.map((set) => ({
           reps: set.reps,
+          durationSeconds: set.durationSeconds,
           completed: set.completed,
         })),
       })),

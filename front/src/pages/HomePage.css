@@ -39,7 +39,7 @@
 }
 
 .home__icon-btn:active {
-  background: #2a3544;
+  background: var(--color-bg-input);
 }
 
 .home__eyebrow {
@@ -156,7 +156,7 @@
 }
 
 .swipe-row__content:not(.swipe-row__content--dragging) .routine-card__main:active {
-  background: #2a3544;
+  background: var(--color-bg-input);
 }
 
 .routine-card__delete {

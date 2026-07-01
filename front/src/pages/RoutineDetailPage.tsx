@@ -15,6 +15,7 @@ import type { Exercise } from "../types/exercise";
 import type { RoutineDetail, RoutineExercise } from "../types/routine";
 import { createTempId, isTempId } from "../utils/id";
 import { applyExerciseOrder } from "../utils/reorder";
+import { useTranslation } from "../context/LanguageContext";
 import heroIcon from "../assets/hero.png";
 import "./RoutineDetailPage.css";
 
@@ -35,6 +36,7 @@ type SavedRestFields = {
 export function RoutineDetailPage() {
   const { id: routineId } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [routine, setRoutine] = useState<RoutineDetail | null>(null);
   const [exercises, setExercises] = useState<RoutineExercise[]>([]);
@@ -89,7 +91,7 @@ export function RoutineDetailPage() {
 
   const loadRoutine = useCallback(async () => {
     if (!routineId) {
-      setError("Rutina no válida");
+      setError(t("invalidRoutine"));
       setIsLoading(false);
       return;
     }
@@ -121,11 +123,11 @@ export function RoutineDetailPage() {
         ])
       );
     } catch {
-      setError("No se pudo cargar la rutina");
+      setError(t("errorLoadRoutine"));
     } finally {
       setIsLoading(false);
     }
-  }, [routineId]);
+  }, [routineId, t]);
 
   useEffect(() => {
     loadRoutine();
@@ -225,7 +227,7 @@ export function RoutineDetailPage() {
 
     const trimmedName = name.trim();
     if (!trimmedName) {
-      setError("El nombre es obligatorio");
+      setError(t("routineNameRequired"));
       return;
     }
 
@@ -315,6 +317,12 @@ export function RoutineDetailPage() {
           if (savedFields.restBetweenSeconds !== exercise.restBetweenSeconds) {
             patch.restBetweenSeconds = exercise.restBetweenSeconds;
           }
+          if (savedFields.durationSeconds !== exercise.durationSeconds) {
+            patch.durationSeconds = exercise.durationSeconds;
+          }
+          if (savedFields.sets !== exercise.sets) {
+            patch.sets = exercise.sets;
+          }
         }
 
         if (Object.keys(patch).length > 0) {
@@ -343,7 +351,7 @@ export function RoutineDetailPage() {
         ])
       );
     } catch {
-      setError("No se pudo guardar los cambios");
+      setError(t("errorSaveChanges"));
     } finally {
       setIsSaving(false);
       navigate(`/routines/${routine.id}`);
@@ -353,7 +361,7 @@ export function RoutineDetailPage() {
   if (isLoading) {
     return (
       <div className="routine-detail">
-        <p className="routine-detail__loading">Cargando rutina...</p>
+        <p className="routine-detail__loading">{t("loadingRoutine")}</p>
       </div>
     );
   }
@@ -368,7 +376,7 @@ export function RoutineDetailPage() {
             className="btn btn--ghost"
             onClick={() => navigate("/")}
           >
-            Volver
+            {t("back")}
           </button>
         </div>
       </div>
@@ -388,10 +396,10 @@ export function RoutineDetailPage() {
           onClick={handleDiscard}
           disabled={isSaving}
         >
-          Descartar
+          {t("discard")}
         </button>
 
-        <p className="routine-detail__toolbar-title">Rutina</p>
+        <p className="routine-detail__toolbar-title">{t("routine")}</p>
 
         <button
           type="button"
@@ -401,7 +409,7 @@ export function RoutineDetailPage() {
           onClick={handleSave}
           disabled={!isDirty || isSaving}
         >
-          {isSaving ? "..." : "Guardar"}
+          {isSaving ? "..." : t("save")}
         </button>
       </header>
 
@@ -412,8 +420,8 @@ export function RoutineDetailPage() {
             type="text"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="Nombre de la rutina"
-            aria-label="Nombre de la rutina"
+            placeholder={t("routineNameLabel")}
+            aria-label={t("routineNameLabel")}
           />
         </label>
 
@@ -423,8 +431,8 @@ export function RoutineDetailPage() {
             type="text"
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder="Descripción"
-            aria-label="Descripción de la rutina"
+            placeholder={t("routineDescLabel")}
+            aria-label={t("routineDescLabel")}
           />
         </label>
       </section>
@@ -444,7 +452,7 @@ export function RoutineDetailPage() {
               className="routine-detail__empty-icon"
               aria-hidden="true"
             />
-            <p>Aún no hay ejercicios en esta rutina.</p>
+            <p>{t("emptyRoutine")}</p>
           </div>
         ) : (
           <SortableExerciseList
@@ -470,7 +478,7 @@ export function RoutineDetailPage() {
             className="routine-detail__dock-icon"
             aria-hidden="true"
           />
-          <span>Añadir ejercicio</span>
+          <span>{t("addExercise")}</span>
         </button>
       </footer>
 

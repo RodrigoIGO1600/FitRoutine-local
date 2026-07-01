@@ -4,7 +4,7 @@
   min-height: 100dvh;
   max-width: 480px;
   margin: 0 auto;
-  background: #1c252e;
+  background: var(--color-bg);
 }
 
 .routine-summary__loading,

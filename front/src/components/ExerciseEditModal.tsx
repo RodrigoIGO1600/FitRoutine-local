@@ -3,6 +3,7 @@ import { Icon } from "@iconify/react";
 import type { RoutineExercise } from "../types/routine";
 import { getYouTubeThumbnail } from "../utils/youtube";
 import { getMuscleGroupImage } from "../utils/muscleGroupImage";
+import { useTranslation } from "../context/LanguageContext";
 import "./ExerciseEditModal.css";
 
 const REST_STEP = 15;
@@ -36,6 +37,7 @@ export function ExerciseEditModal({
   const [durationSeconds, setDurationSeconds] = useState(0);
   const [restSeconds, setRestSeconds] = useState(0);
   const [restBetweenSeconds, setRestBetweenSeconds] = useState(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (routineExercise) {
@@ -94,7 +96,7 @@ export function ExerciseEditModal({
           type="button"
           className="exercise-edit-modal__close"
           onClick={onClose}
-          aria-label="Cerrar"
+          aria-label={t("closeExerciseEdit")}
         >
           <Icon icon="solar:close-circle-bold" width={28} />
         </button>
@@ -126,7 +128,7 @@ export function ExerciseEditModal({
 
         <div className="exercise-edit-modal__fields">
           <div className="exercise-edit-modal__field">
-            <label className="exercise-edit-modal__label">Series</label>
+            <label className="exercise-edit-modal__label">{t("sets")}</label>
             <div className="exercise-edit-modal__stepper">
               <button
                 type="button"
@@ -172,7 +174,7 @@ export function ExerciseEditModal({
           )}
 
           <div className="exercise-edit-modal__field">
-            <label className="exercise-edit-modal__label">Descanso entre series</label>
+            <label className="exercise-edit-modal__label">{t("restBetweenSets")}</label>
             <div className="exercise-edit-modal__stepper">
               <button
                 type="button"
@@ -193,7 +195,7 @@ export function ExerciseEditModal({
           </div>
 
           <div className="exercise-edit-modal__field">
-            <label className="exercise-edit-modal__label">Descanso entre ejercicios</label>
+            <label className="exercise-edit-modal__label">{t("restBetweenExercises")}</label>
             <div className="exercise-edit-modal__stepper">
               <button
                 type="button"
@@ -220,7 +222,7 @@ export function ExerciseEditModal({
           onClick={handleRemove}
         >
           <Icon icon="solar:trash-bin-minimalistic-linear" width={18} />
-          Eliminar ejercicio
+          {t("deleteExercise")}
         </button>
       </div>
     </div>

@@ -9,6 +9,7 @@ import {
   clearWorkoutProgress,
   hasWorkoutProgress,
 } from "../utils/workoutStorage";
+import { useTranslation } from "../context/LanguageContext";
 import type { RoutineDetail } from "../types/routine";
 import "./RoutineSummaryPage.css";
 
@@ -48,9 +49,19 @@ function repsDisplay(reps: number, repsList: string | null): string {
   return min === max ? `${min} reps` : `${min}-${max} reps`;
 }
 
+function durationDisplay(durationSeconds: number): string {
+  if (durationSeconds < 60) {
+    return `${durationSeconds} seg`;
+  }
+  const min = Math.floor(durationSeconds / 60);
+  const sec = durationSeconds % 60;
+  return sec === 0 ? `${min} min` : `${min}:${String(sec).padStart(2, "0")} min`;
+}
+
 export function RoutineSummaryPage() {
   const { id: routineId } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [routine, setRoutine] = useState<RoutineDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,7 +71,7 @@ export function RoutineSummaryPage() {
 
   const loadRoutine = useCallback(async () => {
     if (!routineId) {
-      setError("Rutina no válida");
+      setError(t("invalidRoutine"));
       setIsLoading(false);
       return;
     }
@@ -82,11 +93,11 @@ export function RoutineSummaryPage() {
         setAvgDuration(Math.round(total / sessions.length));
       }
     } catch {
-      setError("No se pudo cargar la rutina");
+      setError(t("errorLoadRoutine"));
     } finally {
       setIsLoading(false);
     }
-  }, [routineId]);
+  }, [routineId, t]);
 
   useEffect(() => {
     loadRoutine();
@@ -95,7 +106,7 @@ export function RoutineSummaryPage() {
   if (isLoading) {
     return (
       <div className="routine-summary">
-        <p className="routine-summary__loading">Cargando rutina...</p>
+        <p className="routine-summary__loading">{t("loadingRoutine")}</p>
       </div>
     );
   }
@@ -104,13 +115,13 @@ export function RoutineSummaryPage() {
     return (
       <div className="routine-summary">
         <div className="routine-summary__state routine-summary__state--error">
-          <p>{error ?? "Rutina no encontrada"}</p>
+          <p>{error ?? t("invalidRoutine")}</p>
           <button
             type="button"
             className="btn btn--ghost"
             onClick={() => navigate("/")}
           >
-            Volver
+            {t("back")}
           </button>
         </div>
       </div>
@@ -130,7 +141,7 @@ export function RoutineSummaryPage() {
           type="button"
           className="routine-summary__back"
           onClick={() => navigate("/")}
-          aria-label="Volver"
+          aria-label={t("back")}
         >
           <Icon icon="solar:arrow-left-linear" />
         </button>
@@ -140,11 +151,11 @@ export function RoutineSummaryPage() {
           <div className="routine-summary__stats">
             <span className="routine-summary__stat">
               <span className="routine-summary__stat-icon">⚡</span>
-              {exerciseCount} Ejercicios
+              {exerciseCount} {t("exercises")}
             </span>
             <span className="routine-summary__stat">
               <span className="routine-summary__stat-icon">🕐</span>
-              {estimatedMin} Min
+              {estimatedMin} {t("minutes")}
             </span>
           </div>
         </div>
@@ -154,7 +165,7 @@ export function RoutineSummaryPage() {
           className="routine-summary__customize"
           onClick={() => navigate(`/routines/${routineId}/edit`)}
         >
-          Personalizar
+          {t("edit")}
         </button>
       </header>
 
@@ -168,11 +179,11 @@ export function RoutineSummaryPage() {
           <div className="routine-summary__stats">
             <span className="routine-summary__stat">
               <span className="routine-summary__stat-icon">⚡</span>
-              {exerciseCount} Ejercicios
+              {exerciseCount} {t("exercises")}
             </span>
             <span className="routine-summary__stat">
               <span className="routine-summary__stat-icon">🕐</span>
-              {estimatedMin} Min
+              {estimatedMin} {t("minutes")}
             </span>
           </div>
         </div>
@@ -205,7 +216,9 @@ export function RoutineSummaryPage() {
                       {re.exercise.name}
                     </p>
                     <p className="routine-summary__exercise-meta">
-                      {re.sets} sets x {repsDisplay(re.reps, re.repsList)}
+                      {re.exercise.isTimed
+                        ? `${re.sets} sets x ${durationDisplay(re.durationSeconds)}`
+                        : `${re.sets} sets x ${repsDisplay(re.reps, re.repsList)}`}
                     </p>
                   </div>
 
@@ -230,7 +243,7 @@ export function RoutineSummaryPage() {
           onClick={() => navigate(`/routines/${routineId}/workout`)}
           disabled={exerciseCount === 0}
         >
-          {resumable ? "Reanudar entrenamiento" : "Iniciar Rutina"}
+          {resumable ? t("resumeWorkout") : t("startRoutine")}
         </button>
 
         {resumable && (
@@ -240,7 +253,7 @@ export function RoutineSummaryPage() {
             onClick={() => {
               if (
                 !window.confirm(
-                  "¿Empezar de cero? Se borrará el progreso guardado."
+                  t("confirmStartOver")
                 )
               ) {
                 return;
@@ -253,7 +266,7 @@ export function RoutineSummaryPage() {
             }}
           >
             <Icon icon="solar:restart-linear" style={{ verticalAlign: "middle", marginRight: "6px" }} />
-            Empezar de cero
+            {t("startOver")}
           </button>
         )}
       </footer>

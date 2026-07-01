@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import type { Routine } from "../types/routine";
 import { RoutineCard } from "./RoutineCard";
+import { useTranslation } from "../context/LanguageContext";
 
 const DELETE_ACTION_WIDTH = 88;
 
@@ -30,6 +31,7 @@ export function SwipeableRoutineCard({
   const offsetRef = useRef(0);
   const isDraggingRef = useRef(false);
   const didSwipeRef = useRef(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const nextOffset = isRevealed ? -DELETE_ACTION_WIDTH : 0;
@@ -115,9 +117,9 @@ export function SwipeableRoutineCard({
           className="swipe-row__delete"
           onClick={onDelete}
           disabled={isDeleting}
-          aria-label={`Borrar rutina ${routine.name}`}
+          aria-label={t("deleteRoutine", { name: routine.name })}
         >
-          {isDeleting ? "..." : "Borrar"}
+          {isDeleting ? "..." : t("delete")}
         </button>
       </div>
 
@@ -138,7 +140,7 @@ export function SwipeableRoutineCard({
         className="swipe-row__delete-desktop"
         onClick={onDelete}
         disabled={isDeleting}
-        aria-label={`Borrar rutina ${routine.name}`}
+        aria-label={t("deleteRoutine", { name: routine.name })}
       >
         {isDeleting ? "..." : (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">

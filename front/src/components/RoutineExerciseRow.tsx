@@ -1,6 +1,7 @@
 import type { RoutineExercise } from "../types/routine";
 import { getMuscleGroupImage } from "../utils/muscleGroupImage";
 import { getYouTubeThumbnail } from "../utils/youtube";
+import { useTranslation } from "../context/LanguageContext";
 
 const REST_STEP = 15;
 const REST_MIN = 0;
@@ -26,6 +27,7 @@ type RestStepperProps = {
 };
 
 function RestStepper({ label, value, onChange }: RestStepperProps) {
+  const { t } = useTranslation();
   const clamp = (next: number) =>
     Math.max(REST_MIN, Math.min(REST_MAX, next));
 
@@ -37,7 +39,7 @@ function RestStepper({ label, value, onChange }: RestStepperProps) {
           type="button"
           className="routine-exercise-row__rest-btn"
           onClick={() => onChange(clamp(value - REST_STEP))}
-          aria-label={`Reducir ${label}`}
+          aria-label={t("reduceLabel", { label })}
         >
           −
         </button>
@@ -46,7 +48,7 @@ function RestStepper({ label, value, onChange }: RestStepperProps) {
           type="button"
           className="routine-exercise-row__rest-btn"
           onClick={() => onChange(clamp(value + REST_STEP))}
-          aria-label={`Aumentar ${label}`}
+          aria-label={t("increaseLabel", { label })}
         >
           +
         </button>
@@ -66,6 +68,7 @@ export function RoutineExerciseRow({
     routineExercise;
 
   const isTimed = exercise.isTimed;
+  const { t } = useTranslation();
 
   const parsedRepsList = repsList
     ? (() => {
@@ -84,9 +87,11 @@ export function RoutineExerciseRow({
       ? (() => {
           const min = Math.min(...parsedRepsList);
           const max = Math.max(...parsedRepsList);
-          return min === max ? `${min} reps` : `${min}-${max} reps`;
+          return min === max
+            ? t("repsLabel", { count: min })
+            : t("repsRange", { min, max });
         })()
-      : `${reps} reps`;
+      : t("repsLabel", { count: reps });
   const muscleImage = getMuscleGroupImage(exercise.muscleGroup);
   const thumbnail = getYouTubeThumbnail(exercise.videoUrl);
 
@@ -110,7 +115,7 @@ export function RoutineExerciseRow({
             type="button"
             className="routine-exercise-row__delete-btn"
             onClick={onRemove}
-            aria-label={`Eliminar ${exercise.name}`}
+            aria-label={t("deleteExercise")}
           >
             <svg
               width="14"
@@ -138,12 +143,12 @@ export function RoutineExerciseRow({
                 onChangeSets(Math.max(SETS_MIN, Math.min(SETS_MAX, sets - 1)))
               }
               disabled={sets <= SETS_MIN}
-              aria-label="Reducir series"
+              aria-label={t("reduceSets")}
             >
               −
             </button>
             <span className="routine-exercise-row__sets-value">
-              {sets} series
+              {t("setsLabel", { count: sets })}
             </span>
             <button
               type="button"
@@ -152,7 +157,7 @@ export function RoutineExerciseRow({
                 onChangeSets(Math.max(SETS_MIN, Math.min(SETS_MAX, sets + 1)))
               }
               disabled={sets >= SETS_MAX}
-              aria-label="Aumentar series"
+              aria-label={t("increaseSets")}
             >
               +
             </button>
@@ -163,7 +168,7 @@ export function RoutineExerciseRow({
                 type="button"
                 className="routine-exercise-row__rest-btn"
                 onClick={() => onChangeDuration?.(Math.max(5, durationSeconds - 5))}
-                aria-label="Reducir tiempo"
+                aria-label={t("reduceTime")}
               >
                 −
               </button>
@@ -174,7 +179,7 @@ export function RoutineExerciseRow({
                 type="button"
                 className="routine-exercise-row__rest-btn"
                 onClick={() => onChangeDuration?.(Math.min(600, durationSeconds + 5))}
-                aria-label="Aumentar tiempo"
+                aria-label={t("increaseTime")}
               >
                 +
               </button>
@@ -195,12 +200,12 @@ export function RoutineExerciseRow({
 
       <div className="routine-exercise-row__rest">
         <RestStepper
-          label="Entre series"
+          label={t("betweenSets")}
           value={restSeconds}
           onChange={(value) => onChangeRest("restSeconds", value)}
         />
         <RestStepper
-          label="Entre ejercicios"
+          label={t("betweenExercises")}
           value={restBetweenSeconds}
           onChange={(value) => onChangeRest("restBetweenSeconds", value)}
         />

@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "../context/LanguageContext";
 
 type CreateRoutineSheetProps = {
   isOpen: boolean;
@@ -16,6 +17,7 @@ export function CreateRoutineSheet({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   if (!isOpen) {
     return null;
@@ -27,7 +29,7 @@ export function CreateRoutineSheet({
     const trimmedName = name.trim();
 
     if (!trimmedName) {
-      setValidationError("El nombre es obligatorio");
+      setValidationError(t("routineNameRequired"));
       return;
     }
 
@@ -63,31 +65,31 @@ export function CreateRoutineSheet({
         <div className="sheet__handle" aria-hidden="true" />
 
         <header className="sheet__header">
-          <h2 id="create-routine-title">Nueva rutina</h2>
-          <p>Asigna un nombre para empezar a añadir ejercicios.</p>
+          <h2 id="create-routine-title">{t("newRoutine")}</h2>
+          <p>{t("newRoutineHint")}</p>
         </header>
 
         <form className="sheet__form" onSubmit={handleSubmit}>
           <label className="field">
-            <span className="field__label">Nombre</span>
+            <span className="field__label">{t("name")}</span>
             <input
               className="field__input"
               type="text"
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="Ej. Cuerpo, Piernas..."
+              placeholder={t("routineNamePlaceholder")}
               autoFocus
               disabled={isSubmitting}
             />
           </label>
 
           <label className="field">
-            <span className="field__label">Descripción (opcional)</span>
+            <span className="field__label">{t("descriptionOptional")}</span>
             <textarea
               className="field__input field__input--textarea"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="Notas sobre esta rutina"
+              placeholder={t("routineDescriptionPlaceholder")}
               rows={3}
               disabled={isSubmitting}
             />
@@ -106,14 +108,14 @@ export function CreateRoutineSheet({
               onClick={handleClose}
               disabled={isSubmitting}
             >
-              Cancelar
+              {t("cancel")}
             </button>
             <button
               type="submit"
               className="btn btn--primary"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Creando..." : "Crear rutina"}
+              {isSubmitting ? t("creating") : t("createRoutine")}
             </button>
           </div>
         </form>

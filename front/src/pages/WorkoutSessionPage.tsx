@@ -15,6 +15,7 @@ import {
 import { RestTimer } from "../components/RestTimer";
 import { ExerciseTimer } from "../components/ExerciseTimer";
 import type { WorkoutExercise } from "../types/workout";
+import { useTranslation } from "../context/LanguageContext";
 import "./WorkoutSessionPage.css";
 
 type RestKind = "set" | "exercise";
@@ -28,32 +29,14 @@ type RestState = {
   advanceAfter: boolean;
 };
 
-const REST_LABELS: Record<RestKind, string> = {
-  set: "Descanso entre series",
-  exercise: "Descanso entre ejercicios",
-};
-
-const MUSCLE_LABELS: Record<string, string> = {
-  shoulders: "Hombros",
-  chest: "Pecho",
-  biceps: "Bíceps",
-  forearm: "Antebrazo",
-  triceps: "Tríceps",
-  back: "Espalda",
-  traps: "Trapecio",
-  legs: "Piernas",
-  glutes: "Glúteos",
-  core: "Core",
-};
-
 function formatRest(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
-function muscleLabel(muscleGroup: string): string {
-  return MUSCLE_LABELS[muscleGroup.toLowerCase()] ?? muscleGroup.toUpperCase();
+function muscleLabel(muscleGroup: string, labels: Record<string, string>): string {
+  return labels[muscleGroup.toLowerCase()] ?? muscleGroup.toUpperCase();
 }
 
 function formatTime(totalSeconds: number): string {
@@ -69,6 +52,25 @@ function formatTime(totalSeconds: number): string {
 export function WorkoutSessionPage() {
   const { id: routineId } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const REST_LABELS: Record<RestKind, string> = {
+    set: t("restBetweenSets"),
+    exercise: t("restBetweenExercises"),
+  };
+
+  const MUSCLE_LABELS: Record<string, string> = {
+    shoulders: t("muscleShoulders"),
+    chest: t("muscleChest"),
+    biceps: t("muscleBiceps"),
+    forearm: t("muscleForearm"),
+    triceps: t("muscleTriceps"),
+    back: t("muscleBack"),
+    traps: t("muscleTraps"),
+    legs: t("muscleLegs"),
+    glutes: t("muscleGlutes"),
+    core: t("muscleCore"),
+  };
 
   const [routineName, setRoutineName] = useState("");
   const [session, setSession] = useState<WorkoutExercise[] | null>(null);
@@ -97,7 +99,7 @@ export function WorkoutSessionPage() {
 
   const loadRoutine = useCallback(async () => {
     if (!routineId) {
-      setError("Rutina no válida");
+      setError(t("invalidRoutine"));
       setIsLoading(false);
       return;
     }
@@ -161,7 +163,7 @@ export function WorkoutSessionPage() {
           exercise.sets = exercise.sets.map((set, index) => {
             const savedSet = savedSets[index];
             return savedSet
-              ? { ...set, reps: savedSet.reps, completed: savedSet.completed }
+              ? { ...set, reps: savedSet.reps, durationSeconds: savedSet.durationSeconds, completed: savedSet.completed }
               : set;
           });
         }
@@ -181,11 +183,11 @@ export function WorkoutSessionPage() {
       setElapsedSeconds(restoredElapsed);
       hydratedRef.current = true;
     } catch {
-      setError("No se pudo cargar la rutina");
+      setError(t("errorLoadRoutine"));
     } finally {
       setIsLoading(false);
     }
-  }, [routineId]);
+  }, [routineId, t]);
 
   useEffect(() => {
     loadRoutine();
@@ -380,6 +382,29 @@ export function WorkoutSessionPage() {
     });
   }
 
+  function updateSetDuration(setId: string, delta: number) {
+    setSession((prev) => {
+      if (!prev) {
+        return prev;
+      }
+
+      return prev.map((exercise, index) => {
+        if (index !== currentIndex) {
+          return exercise;
+        }
+
+        return {
+          ...exercise,
+          sets: exercise.sets.map((set) =>
+            set.id === setId
+              ? { ...set, durationSeconds: Math.max(5, Math.min(600, set.durationSeconds + delta)) }
+              : set
+          ),
+        };
+      });
+    });
+  }
+
   function setSetCompleted(setId: string, completed: boolean) {
     const exercise = session?.[currentIndex];
 
@@ -486,7 +511,7 @@ export function WorkoutSessionPage() {
     }
 
     const input = window.prompt(
-      "Tiempo de descanso (segundos):",
+      t("restTimePrompt"),
       String(rest.total)
     );
 
@@ -629,7 +654,7 @@ export function WorkoutSessionPage() {
 
       navigate("/");
     } catch {
-      setSaveError("No se pudo guardar el entrenamiento. Intenta de nuevo.");
+      setSaveError(t("errorSaveWorkout"));
     } finally {
       setIsSaving(false);
     }
@@ -646,7 +671,7 @@ export function WorkoutSessionPage() {
   if (isLoading) {
     return (
       <div className="workout">
-        <p className="workout__state">Cargando rutina...</p>
+        <p className="workout__state">{t("loadingRoutine")}</p>
       </div>
     );
   }
@@ -655,13 +680,13 @@ export function WorkoutSessionPage() {
     return (
       <div className="workout">
         <div className="workout__state workout__state--error">
-          <p>{error ?? "Esta rutina no tiene ejercicios."}</p>
+          <p>{error ?? t("noExercisesInRoutine")}</p>
           <button
             type="button"
             className="btn btn--ghost"
             onClick={() => navigate(`/routines/${routineId}`)}
           >
-            Volver
+            {t("back")}
           </button>
         </div>
       </div>
@@ -683,7 +708,7 @@ export function WorkoutSessionPage() {
           className="workout__bar-btn"
           onClick={handleExit}
         >
-          Salir
+          {t("exit")}
         </button>
 
         <div className="workout__progress">
@@ -692,12 +717,12 @@ export function WorkoutSessionPage() {
             className="workout__progress-arrow"
             onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))}
             disabled={currentIndex === 0}
-            aria-label="Ejercicio anterior"
+            aria-label={t("previous")}
           >
             ‹
           </button>
           <span className="workout__progress-label">
-            EJERCICIO {currentIndex + 1}/{session.length}
+            {t("exerciseProgress", { current: currentIndex + 1, total: session.length })}
           </span>
           <button
             type="button"
@@ -708,7 +733,7 @@ export function WorkoutSessionPage() {
               )
             }
             disabled={isLastExercise}
-            aria-label="Siguiente ejercicio"
+            aria-label={t("next")}
           >
             ›
           </button>
@@ -719,27 +744,27 @@ export function WorkoutSessionPage() {
           className="workout__bar-btn"
           onClick={() => setIsJumpSheetOpen(true)}
         >
-          Ejercicios
+          {t("exercisesList")}
         </button>
       </header>
 
       <section className="workout__stats">
         <div className="workout__stat">
-          <span className="workout__stat-label">Tiempo</span>
+          <span className="workout__stat-label">{t("time")}</span>
           <span className="workout__stat-value">
             {formatTime(elapsedSeconds)}
           </span>
         </div>
         <span className="workout__stat-divider" aria-hidden="true" />
         <div className="workout__stat">
-          <span className="workout__stat-label">Volumen</span>
+          <span className="workout__stat-label">{t("volume")}</span>
           <span className="workout__stat-value workout__stat-value--muted">
             0 kg
           </span>
         </div>
         <span className="workout__stat-divider" aria-hidden="true" />
         <div className="workout__stat">
-          <span className="workout__stat-label">Reps</span>
+          <span className="workout__stat-label">{t("reps")}</span>
           <span className="workout__stat-value">{totalReps}</span>
         </div>
       </section>
@@ -777,7 +802,7 @@ export function WorkoutSessionPage() {
         <div className="workout__exercise-info">
           <h1 className="workout__exercise-name">{current.exercise.name}</h1>
           <span className="workout__exercise-badge">
-            {muscleLabel(current.exercise.muscleGroup)}
+            {muscleLabel(current.exercise.muscleGroup, MUSCLE_LABELS)}
           </span>
         </div>
 
@@ -843,13 +868,30 @@ export function WorkoutSessionPage() {
                 set.completed ? " workout__set--done" : ""
               }${isActive ? " workout__set--active" : ""}`}
             >
-              <span className="workout__set-label">Serie {index + 1}</span>
+              <span className="workout__set-label">{t("seriesLabel", { number: index + 1 })}</span>
 
               {current.isTimed ? (
                 <div className="workout__stepper">
+                  <button
+                    type="button"
+                    className="workout__stepper-btn"
+                    onClick={() => updateSetDuration(set.id, -5)}
+                    aria-label={t("reduceTime")}
+                  >
+                    −
+                  </button>
                   <span className="workout__reps">
-                    <span className="workout__reps-value">{set.durationSeconds}s</span>
+                    <span className="workout__reps-value">{set.durationSeconds}</span>
+                    <span className="workout__reps-unit">s</span>
                   </span>
+                  <button
+                    type="button"
+                    className="workout__stepper-btn"
+                    onClick={() => updateSetDuration(set.id, 5)}
+                    aria-label={t("increaseTime")}
+                  >
+                    +
+                  </button>
                 </div>
               ) : (
                 <div className="workout__stepper">
@@ -857,7 +899,7 @@ export function WorkoutSessionPage() {
                     type="button"
                     className="workout__stepper-btn"
                     onClick={() => updateSetReps(set.id, -1)}
-                    aria-label="Quitar repetición"
+                    aria-label={t("removeRepetition")}
                   >
                     −
                   </button>
@@ -869,7 +911,7 @@ export function WorkoutSessionPage() {
                     type="button"
                     className="workout__stepper-btn"
                     onClick={() => updateSetReps(set.id, 1)}
-                    aria-label="Añadir repetición"
+                    aria-label={t("addRepetition")}
                   >
                     +
                   </button>
@@ -922,10 +964,10 @@ export function WorkoutSessionPage() {
                 {set.completed ? (
                   <span className="workout__set-action-inner">
                     <span aria-hidden="true">✓</span>
-                    Rehacer
+                    {t("redo")}
                   </span>
                 ) : isActive ? (
-                  "Hecho"
+                  t("done")
                 ) : (
                   <span aria-hidden="true">▶</span>
                 )}
@@ -941,7 +983,7 @@ export function WorkoutSessionPage() {
           className="workout__log-btn"
           onClick={logAllSets}
         >
-          Registrar todas las series
+          {t("logAllSets")}
         </button>
 
         <div className="workout__footer-links">
@@ -950,14 +992,14 @@ export function WorkoutSessionPage() {
             className="workout__text-btn"
             onClick={() => navigate(`/routines/${routineId}/edit`)}
           >
-            Personalizar ejercicio
+            {t("customizeExercise")}
           </button>
           <button
             type="button"
             className="workout__text-btn workout__text-btn--finish"
             onClick={handleFinish}
           >
-            Terminar rutina
+            {t("finishRoutine")}
           </button>
         </div>
       </footer>
@@ -972,13 +1014,13 @@ export function WorkoutSessionPage() {
             className="sheet"
             role="dialog"
             aria-modal="true"
-            aria-label="Ejercicios de la rutina"
+            aria-label={t("exercisesListTitle")}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="sheet__handle" aria-hidden="true" />
             <div className="sheet__header">
               <h2>{routineName}</h2>
-              <p>Toca un ejercicio para saltar a él.</p>
+              <p>{t("jumpToExercise")}</p>
             </div>
 
             <ul className="workout__jump-list">
@@ -1002,7 +1044,7 @@ export function WorkoutSessionPage() {
                         {exercise.exercise.name}
                       </span>
                       <span className="workout__jump-meta">
-                        {doneSets}/{exercise.sets.length} series
+                        {t("setsLabel", { count: `${doneSets}/${exercise.sets.length}` })}
                       </span>
                     </button>
                   </li>
@@ -1025,7 +1067,7 @@ export function WorkoutSessionPage() {
           }
           nextExerciseMuscleGroup={
             rest.kind === "exercise" && session[currentIndex + 1]
-              ? muscleLabel(session[currentIndex + 1].exercise.muscleGroup)
+              ? muscleLabel(session[currentIndex + 1].exercise.muscleGroup, MUSCLE_LABELS)
               : undefined
           }
           nextExerciseImage={
@@ -1050,7 +1092,7 @@ export function WorkoutSessionPage() {
           type="button"
           className="workout__rest-minimized"
           onClick={() => setIsRestMinimized(false)}
-          aria-label="Expandir timer de descanso"
+          aria-label={t("expandRestTimer")}
         >
           <svg className="workout__rest-minimized-ring" viewBox="0 0 40 40" aria-hidden="true">
             <circle
@@ -1078,7 +1120,7 @@ export function WorkoutSessionPage() {
         <ExerciseTimer
           remaining={exerciseTimer.remaining}
           total={exerciseTimer.total}
-          label="Tiempo de ejercicio"
+          label={t("exerciseTime")}
           onSkip={skipExerciseTimer}
           onAdjust={adjustExerciseTimer}
         />
@@ -1089,13 +1131,13 @@ export function WorkoutSessionPage() {
           className="workout__finish-overlay"
           role="dialog"
           aria-modal="true"
-          aria-label="Resumen del entrenamiento"
+          aria-label={t("workoutSummary")}
         >
           <div className="workout__finish-card">
             <span className="workout__finish-emoji" aria-hidden="true">
               🎉
             </span>
-            <h2 className="workout__finish-title">¡Entrenamiento completado!</h2>
+            <h2 className="workout__finish-title">{t("workoutComplete")}</h2>
             <p className="workout__finish-subtitle">{routineName}</p>
 
             <div className="workout__finish-stats">
@@ -1103,13 +1145,13 @@ export function WorkoutSessionPage() {
                 <span className="workout__finish-stat-value">
                   {formatTime(elapsedSeconds)}
                 </span>
-                <span className="workout__finish-stat-label">Tiempo</span>
+                <span className="workout__finish-stat-label">{t("time")}</span>
               </div>
               <div className="workout__finish-stat">
                 <span className="workout__finish-stat-value">
                   {session.length}
                 </span>
-                <span className="workout__finish-stat-label">Ejercicios</span>
+                <span className="workout__finish-stat-label">{t("exercisesList")}</span>
               </div>
               <div className="workout__finish-stat">
                 <span className="workout__finish-stat-value">
@@ -1120,11 +1162,11 @@ export function WorkoutSessionPage() {
                     0
                   )}
                 </span>
-                <span className="workout__finish-stat-label">Series</span>
+                <span className="workout__finish-stat-label">{t("seriesLabel", { number: "" })}</span>
               </div>
               <div className="workout__finish-stat">
                 <span className="workout__finish-stat-value">{totalReps}</span>
-                <span className="workout__finish-stat-label">Reps</span>
+                <span className="workout__finish-stat-label">{t("reps")}</span>
               </div>
             </div>
 
@@ -1140,7 +1182,7 @@ export function WorkoutSessionPage() {
               onClick={finalizeWorkout}
               disabled={isSaving}
             >
-              {isSaving ? "Guardando..." : "Finalizar y guardar"}
+              {isSaving ? t("saving") : t("finishAndSave")}
             </button>
 
             <div className="workout__finish-links workout__finish-links--single">
@@ -1150,7 +1192,7 @@ export function WorkoutSessionPage() {
                 onClick={discardAndExit}
                 disabled={isSaving}
               >
-                Salir sin guardar
+                {t("exitWithoutSaving")}
               </button>
             </div>
           </div>

@@ -5,6 +5,7 @@ import type { RoutineExercise } from "../types/routine";
 import { applyExerciseOrder, reorderArray } from "../utils/reorder";
 import { getYouTubeThumbnail } from "../utils/youtube";
 import { getMuscleGroupImage } from "../utils/muscleGroupImage";
+import { useTranslation } from "../context/LanguageContext";
 
 const REORDER_ANIMATION_MS = 250;
 
@@ -33,6 +34,7 @@ export function SortableExerciseList({
 }: SortableExerciseListProps) {
   const [movedIds, setMovedIds] = useState<Set<string>>(new Set());
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     return () => {
@@ -88,7 +90,7 @@ export function SortableExerciseList({
                   className="sortable-exercise-list__arrow"
                   onClick={() => handleMoveUp(index)}
                   disabled={index === 0}
-                  aria-label="Mover arriba"
+                  aria-label={t("moveUp")}
                 >
                   <Icon icon="solar:alt-arrow-up-linear" width={16} />
                 </button>
@@ -97,7 +99,7 @@ export function SortableExerciseList({
                   className="sortable-exercise-list__arrow"
                   onClick={() => handleMoveDown(index)}
                   disabled={index === exercises.length - 1}
-                  aria-label="Mover abajo"
+                  aria-label={t("moveDown")}
                 >
                   <Icon icon="solar:alt-arrow-down-linear" width={16} />
                 </button>
@@ -147,7 +149,7 @@ export function SortableExerciseList({
                   className="sortable-exercise-list__arrow"
                   onClick={() => handleMoveUp(index)}
                   disabled={index === 0}
-                  aria-label="Mover izquierda"
+                  aria-label={t("moveLeft")}
                 >
                   <Icon icon="solar:alt-arrow-left-linear" width={16} />
                 </button>
@@ -156,7 +158,7 @@ export function SortableExerciseList({
                   className="sortable-exercise-list__arrow"
                   onClick={() => handleMoveDown(index)}
                   disabled={index === exercises.length - 1}
-                  aria-label="Mover derecha"
+                  aria-label={t("moveRight")}
                 >
                   <Icon icon="solar:alt-arrow-right-linear" width={16} />
                 </button>

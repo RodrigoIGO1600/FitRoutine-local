@@ -6,6 +6,7 @@ import {
   getWorkoutSessions,
 } from "../api/workoutSessionApi";
 import type { WorkoutSession } from "../types/workoutSession";
+import { useTranslation } from "../context/LanguageContext";
 import "./HistoryPage.css";
 
 function formatDuration(totalSeconds: number): string {
@@ -33,6 +34,7 @@ function formatDate(iso: string): string {
 }
 
 export function HistoryPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [sessions, setSessions] = useState<WorkoutSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,11 +48,11 @@ export function HistoryPage() {
       const result = await getWorkoutSessions();
       setSessions(Array.isArray(result) ? result : []);
     } catch {
-      setError("No se pudo cargar el historial");
+      setError(t("errorLoadHistory"));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadSessions();
@@ -68,7 +70,7 @@ export function HistoryPage() {
   }, [sessions]);
 
   async function handleDelete(id: string) {
-    if (!window.confirm("¿Borrar este entrenamiento del historial?")) {
+    if (!window.confirm(t("confirmDeleteWorkout"))) {
       return;
     }
 
@@ -78,7 +80,7 @@ export function HistoryPage() {
       await deleteWorkoutSession(id);
       setSessions((current) => current.filter((session) => session.id !== id));
     } catch {
-      setError("No se pudo borrar el entrenamiento");
+      setError(t("errorDeleteWorkout"));
     } finally {
       setDeletingId(null);
     }
@@ -91,11 +93,11 @@ export function HistoryPage() {
           type="button"
           className="history__back"
           onClick={() => navigate("/")}
-          aria-label="Volver"
+          aria-label={t("back")}
         >
           <Icon icon="solar:arrow-left-linear" />
         </button>
-        <h1 className="history__title">Historial</h1>
+        <h1 className="history__title">{t("history")}</h1>
         <span className="history__toolbar-spacer" aria-hidden="true" />
       </header>
 
@@ -103,23 +105,23 @@ export function HistoryPage() {
         <section className="history__summary">
           <div className="history__summary-item">
             <span className="history__summary-value">{totals.workouts}</span>
-            <span className="history__summary-label">Entrenamientos</span>
+            <span className="history__summary-label">{t("workouts")}</span>
           </div>
           <div className="history__summary-item">
             <span className="history__summary-value">
               {Math.round(totals.seconds / 60)}
             </span>
-            <span className="history__summary-label">Minutos</span>
+            <span className="history__summary-label">{t("minutes")}</span>
           </div>
           <div className="history__summary-item">
             <span className="history__summary-value">{totals.reps}</span>
-            <span className="history__summary-label">Reps</span>
+            <span className="history__summary-label">{t("reps")}</span>
           </div>
         </section>
       )}
 
       <main className="history__content">
-        {isLoading && <p className="history__state">Cargando historial...</p>}
+        {isLoading && <p className="history__state">{t("loadingHistory")}</p>}
 
         {!isLoading && error && (
           <div className="history__state history__state--error">
@@ -132,16 +134,16 @@ export function HistoryPage() {
                 loadSessions();
               }}
             >
-              Reintentar
+              {t("retry")}
             </button>
           </div>
         )}
 
         {!isLoading && !error && sessions.length === 0 && (
           <div className="history__state">
-            <p className="history__empty-title">Aún no hay entrenamientos</p>
+            <p className="history__empty-title">{t("emptyHistory")}</p>
             <p className="history__empty-text">
-              Cuando termines una rutina, aparecerá aquí.
+              {t("emptyHistoryHint")}
             </p>
           </div>
         )}
@@ -158,9 +160,9 @@ export function HistoryPage() {
                   <div className="history__item-meta">
                     <span>{formatDuration(session.durationSeconds)}</span>
                     <span>·</span>
-                    <span>{session.totalSets} series</span>
+                    <span>{t("setsLabel", { count: session.totalSets })}</span>
                     <span>·</span>
-                    <span>{session.totalReps} reps</span>
+                    <span>{t("repsLabel", { count: session.totalReps })}</span>
                   </div>
                 </div>
 
@@ -169,7 +171,7 @@ export function HistoryPage() {
                   className="history__delete"
                   onClick={() => handleDelete(session.id)}
                   disabled={deletingId === session.id}
-                  aria-label={`Borrar entrenamiento de ${session.routineName}`}
+                  aria-label={t("deleteWorkout", { name: session.routineName })}
                 >
                   <Icon
                     icon="solar:trash-bin-minimalistic-linear"

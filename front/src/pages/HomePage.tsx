@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { createRoutine, deleteRoutine, getRoutines } from "../api/routineApi";
 import { CreateRoutineSheet } from "../components/CreateRoutineSheet";
 import { SwipeableRoutineCard } from "../components/SwipeableRoutineCard";
+import { useTranslation } from "../context/LanguageContext";
 import type { Routine } from "../types/routine";
 import "./HomePage.css";
 
 export function HomePage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,18 +29,18 @@ export function HomePage() {
       const result = await getRoutines();
       setRoutines(result);
     } catch {
-      setError("No se pudieron cargar las rutinas");
+      setError(t("errorLoadRoutines"));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadRoutines();
   }, [loadRoutines]);
 
   async function handleDeleteRoutine(routineId: string) {
-    const confirmed = window.confirm("¿Borrar esta rutina? Esta acción no se puede deshacer.");
+    const confirmed = window.confirm(t("confirmDeleteRoutine"));
     if (!confirmed) return;
 
     setDeletingRoutineId(routineId);
@@ -51,7 +53,7 @@ export function HomePage() {
       );
       setRevealedRoutineId(null);
     } catch {
-      setError("No se pudo borrar la rutina");
+      setError(t("errorDeleteRoutine"));
     } finally {
       setDeletingRoutineId(null);
     }
@@ -68,7 +70,7 @@ export function HomePage() {
       setRoutines((current) => [routine, ...current]);
       setIsSheetOpen(false);
     } catch {
-      setError("No se pudo crear la rutina");
+      setError(t("errorCreateRoutine"));
     } finally {
       setIsSubmitting(false);
     }
@@ -79,14 +81,14 @@ export function HomePage() {
       <header className="home__header">
         <div className="home__title-group">
           <p className="home__eyebrow">FitRoutine</p>
-          <h1 className="home__title">Mis rutinas</h1>
+          <h1 className="home__title">{t("myRoutines")}</h1>
         </div>
         <div className="home__header-actions">
           <button
             type="button"
             className="home__icon-btn"
             onClick={() => navigate("/exercises/new")}
-            aria-label="Crear ejercicio"
+            aria-label={t("createExercise")}
           >
             <svg
               width="22"
@@ -109,7 +111,7 @@ export function HomePage() {
             type="button"
             className="home__icon-btn"
             onClick={() => navigate("/history")}
-            aria-label="Ver historial"
+            aria-label={t("viewHistory")}
           >
             <svg
               width="22"
@@ -126,6 +128,26 @@ export function HomePage() {
               <path d="M12 7v5l4 2" />
             </svg>
           </button>
+          <button
+            type="button"
+            className="home__icon-btn"
+            onClick={() => navigate("/settings")}
+            aria-label={t("navSettings")}
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </button>
         </div>
       </header>
 
@@ -135,7 +157,7 @@ export function HomePage() {
       >
         {isLoading && (
           <div className="home__state">
-            <p>Cargando rutinas...</p>
+            <p>{t("loadingRoutines")}</p>
           </div>
         )}
 
@@ -150,16 +172,16 @@ export function HomePage() {
                 loadRoutines();
               }}
             >
-              Reintentar
+              {t("retry")}
             </button>
           </div>
         )}
 
         {!isLoading && !error && routines.length === 0 && (
           <div className="home__state">
-            <p className="home__empty-title">Aún no tienes rutinas</p>
+            <p className="home__empty-title">{t("emptyRoutines")}</p>
             <p className="home__empty-text">
-              Crea tu primera rutina para organizar tus entrenamientos.
+              {t("emptyRoutinesHint")}
             </p>
           </div>
         )}
@@ -196,7 +218,7 @@ export function HomePage() {
           className="btn btn--create"
           onClick={() => setIsSheetOpen(true)}
         >
-          Crear rutina
+          {t("createRoutine")}
         </button>
       </footer>
 

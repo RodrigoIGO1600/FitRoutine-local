@@ -1,3 +1,4 @@
+import { useTranslation } from "../context/LanguageContext";
 import "./ExerciseTimer.css";
 
 const RADIUS = 110;
@@ -18,6 +19,7 @@ export function ExerciseTimer({
   onSkip,
   onAdjust,
 }: ExerciseTimerProps) {
+  const { t } = useTranslation();
   const progress = total > 0 ? remaining / total : 0;
   const offset = CIRCUMFERENCE * (1 - progress);
   const minutes = Math.floor(remaining / 60);
@@ -33,7 +35,7 @@ export function ExerciseTimer({
           type="button"
           className="exercise-timer__ring-btn"
           onClick={onSkip}
-          aria-label="Saltar timer"
+          aria-label={t("timerSkipHint")}
         >
           <svg
             className="exercise-timer__svg"
@@ -68,7 +70,7 @@ export function ExerciseTimer({
             type="button"
             className="exercise-timer__adjust-btn"
             onClick={() => onAdjust(-5)}
-            aria-label="Reducir 5 segundos"
+            aria-label={t("restAdjustDown")}
           >
             −5s
           </button>
@@ -76,13 +78,13 @@ export function ExerciseTimer({
             type="button"
             className="exercise-timer__adjust-btn"
             onClick={() => onAdjust(5)}
-            aria-label="Aumentar 5 segundos"
+            aria-label={t("restAdjustUp")}
           >
             +5s
           </button>
         </div>
 
-        <p className="exercise-timer__hint">Toca el círculo para saltar</p>
+        <p className="exercise-timer__hint">{t("timerSkipHint")}</p>
       </div>
     </div>
   );

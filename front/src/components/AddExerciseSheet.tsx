@@ -4,6 +4,8 @@ import { getExercises } from "../api/exerciseApi";
 import { getMuscleGroupImage } from "../utils/muscleGroupImage";
 import { getYouTubeThumbnail } from "../utils/youtube";
 import type { Exercise } from "../types/exercise";
+import { useTranslation } from "../context/LanguageContext";
+import { type TranslationKey } from "../i18n";
 
 type AddExerciseSheetProps = {
   isOpen: boolean;
@@ -14,18 +16,18 @@ type AddExerciseSheetProps = {
   onDeselect: (exercise: Exercise) => void;
 };
 
-const MUSCLE_GROUP_LABELS: Record<string, string> = {
-  shoulders: "Hombros",
-  chest: "Pecho",
-  biceps: "Bíceps",
-  triceps: "Tríceps",
-  back: "Espalda",
-  forearm: "Antebrazo",
-  traps: "Trapecios",
+const MUSCLE_GROUP_TRANSLATION_KEYS: Record<string, TranslationKey> = {
+  shoulders: "muscleShoulders",
+  chest: "muscleChest",
+  biceps: "muscleBiceps",
+  triceps: "muscleTriceps",
+  back: "muscleBack",
+  forearm: "muscleForearm",
+  traps: "muscleTraps",
 };
 
-function getMuscleGroupLabel(key: string): string {
-  return MUSCLE_GROUP_LABELS[key] ?? key;
+function getMuscleGroupLabel(key: string, t: (key: TranslationKey) => string): string {
+  return MUSCLE_GROUP_TRANSLATION_KEYS[key] ? t(MUSCLE_GROUP_TRANSLATION_KEYS[key]) : key;
 }
 
 export function AddExerciseSheet({
@@ -40,6 +42,7 @@ export function AddExerciseSheet({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -52,14 +55,14 @@ export function AddExerciseSheet({
         const result = await getExercises();
         setExercises(result);
       } catch {
-        setError("No se pudieron cargar los ejercicios");
+        setError(t("errorLoadExercises"));
       } finally {
         setIsLoading(false);
       }
     }
 
     loadExercises();
-  }, [isOpen]);
+  }, [isOpen, t]);
 
   const muscleGroups = useMemo(() => {
     const groups = new Map<string, number>();
@@ -108,22 +111,22 @@ export function AddExerciseSheet({
                 className="exercise-picker__back-btn"
                 onClick={handleBack}
               >
-                <Icon icon="solar:arrow-left-linear" /> Grupos
+                <Icon icon="solar:arrow-left-linear" /> {t("groups")}
               </button>
               <h2 id="add-exercise-title">
-                {getMuscleGroupLabel(selectedGroup)}
+                {getMuscleGroupLabel(selectedGroup, t)}
               </h2>
             </>
           ) : (
             <>
-              <h2 id="add-exercise-title">Añadir ejercicio</h2>
-              <p>Selecciona un grupo muscular.</p>
+              <h2 id="add-exercise-title">{t("addExerciseTitle")}</h2>
+              <p>{t("selectMuscleGroupFirst")}</p>
             </>
           )}
         </header>
 
         <div className="exercise-picker">
-          {isLoading && <p className="exercise-picker__state">Cargando...</p>}
+          {isLoading && <p className="exercise-picker__state">{t("loading")}</p>}
 
           {!isLoading && error && (
             <p className="exercise-picker__state exercise-picker__state--error">
@@ -152,10 +155,10 @@ export function AddExerciseSheet({
                       )}
                       <span className="exercise-picker__group-info">
                         <span className="exercise-picker__group-name">
-                          {getMuscleGroupLabel(key)}
+                          {getMuscleGroupLabel(key, t)}
                         </span>
                         <span className="exercise-picker__group-count">
-                          {count} ejercicios
+                          {t("exercisesCount", { count })}
                         </span>
                       </span>
                     </button>
@@ -169,7 +172,7 @@ export function AddExerciseSheet({
             <>
               {groupExercises.length === 0 ? (
                 <p className="exercise-picker__state">
-                  No hay ejercicios en este grupo.
+                  {t("noExercisesInGroup")}
                 </p>
               ) : (
                 <ul className="exercise-picker__list">
@@ -190,8 +193,8 @@ export function AddExerciseSheet({
                           }
                           aria-label={
                             isAdded
-                              ? `Quitar ${exercise.name}`
-                              : `Añadir ${exercise.name}`
+                              ? t("removeExercise", { name: exercise.name })
+                              : t("addExerciseLabel", { name: exercise.name })
                           }
                           aria-pressed={isAdded}
                         >

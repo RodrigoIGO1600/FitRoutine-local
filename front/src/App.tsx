@@ -6,6 +6,7 @@ import { RoutineDetailPage } from "./pages/RoutineDetailPage";
 import { WorkoutSessionPage } from "./pages/WorkoutSessionPage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { CreateExercisePage } from "./pages/CreateExercisePage";
+import { SettingsPage } from "./pages/SettingsPage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/routines/:id" element={<RoutineSummaryPage />} />
           <Route path="/routines/:id/edit" element={<RoutineDetailPage />} />
           <Route path="/routines/:id/workout" element={<WorkoutSessionPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Routes>
       </DesktopLayout>
     </BrowserRouter>

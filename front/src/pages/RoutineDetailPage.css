@@ -4,7 +4,7 @@
   min-height: 100dvh;
   max-width: 480px;
   margin: 0 auto;
-  background: #1c252e;
+  background: var(--color-bg);
 }
 
 .routine-detail__loading,
@@ -391,7 +391,7 @@
 }
 
 .routine-exercise-row__rest-btn:active {
-  background: #2a3544;
+  background: var(--color-bg-input);
 }
 
 .routine-exercise-row__rest-value {
@@ -510,7 +510,7 @@
 }
 
 .exercise-picker__group-item:active {
-  background: #2a3544;
+  background: var(--color-bg-input);
 }
 
 .exercise-picker__group-img {
@@ -558,7 +558,7 @@
 }
 
 .exercise-picker__item--added:active {
-  background: #2a3544;
+  background: var(--color-bg-input);
 }
 
 .exercise-picker__thumb {
@@ -589,7 +589,7 @@
 }
 
 .exercise-picker__item:not(:disabled):active {
-  background: #2a3544;
+  background: var(--color-bg-input);
 }
 
 .exercise-picker__name {

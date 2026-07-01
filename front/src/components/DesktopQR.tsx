@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import { QRCodeSVG } from "qrcode.react";
 import { API_URL } from "../api/client";
+import { useTranslation } from "../context/LanguageContext";
 import "./DesktopQR.css";
 
 export function DesktopQR() {
   const [url, setUrl] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     async function fetchIP() {
@@ -30,7 +32,7 @@ export function DesktopQR() {
         type="button"
         className="desktop-qr__toggle"
         onClick={() => setIsOpen((prev) => !prev)}
-        aria-label={isOpen ? "Cerrar código QR" : "Abrir código QR"}
+        aria-label={isOpen ? t("closeQR") : t("openQR")}
       >
         <Icon icon="solar:iphone-linear" width={20} height={20} />
       </button>
@@ -43,7 +45,7 @@ export function DesktopQR() {
             bgColor="transparent"
             fgColor="#ffffff"
           />
-          <p className="desktop-qr__text">Escanea para abrir en tu celular</p>
+          <p className="desktop-qr__text">{t("scanQR")}</p>
         </div>
       )}
     </div>

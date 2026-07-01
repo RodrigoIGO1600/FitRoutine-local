@@ -2,38 +2,8 @@ import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { createExercise } from "../api/exerciseApi";
+import { useTranslation } from "../context/LanguageContext";
 import "./CreateExercisePage.css";
-
-const MUSCLE_GROUPS: { value: string; label: string }[] = [
-  { value: "shoulders", label: "Hombros" },
-  { value: "chest", label: "Pecho" },
-  { value: "back", label: "Espalda" },
-  { value: "biceps", label: "Bíceps" },
-  { value: "triceps", label: "Tríceps" },
-  { value: "forearm", label: "Antebrazo" },
-  { value: "traps", label: "Trapecios" },
-  { value: "legs", label: "Piernas" },
-  { value: "glutes", label: "Glúteos" },
-  { value: "core", label: "Core" },
-];
-
-const CATEGORIES: { value: string; label: string }[] = [
-  { value: "strength", label: "Fuerza" },
-  { value: "cardio", label: "Cardio" },
-  { value: "mobility", label: "Movilidad" },
-  { value: "stretching", label: "Estiramiento" },
-];
-
-const EQUIPMENT: { value: string; label: string }[] = [
-  { value: "bodyweight", label: "Peso corporal" },
-  { value: "dumbbell", label: "Mancuerna" },
-  { value: "barbell", label: "Barra" },
-  { value: "machine", label: "Máquina" },
-  { value: "kettlebell", label: "Kettlebell" },
-  { value: "band", label: "Banda" },
-  { value: "cable", label: "Polea" },
-  { value: "other", label: "Otro" },
-];
 
 function isValidUrl(value: string): boolean {
   try {
@@ -46,6 +16,38 @@ function isValidUrl(value: string): boolean {
 
 export function CreateExercisePage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const MUSCLE_GROUPS: { value: string; label: string }[] = [
+    { value: "shoulders", label: t("muscleShoulders") },
+    { value: "chest", label: t("muscleChest") },
+    { value: "back", label: t("muscleBack") },
+    { value: "biceps", label: t("muscleBiceps") },
+    { value: "triceps", label: t("muscleTriceps") },
+    { value: "forearm", label: t("muscleForearm") },
+    { value: "traps", label: t("muscleTraps") },
+    { value: "legs", label: t("muscleLegs") },
+    { value: "glutes", label: t("muscleGlutes") },
+    { value: "core", label: t("muscleCore") },
+  ];
+
+  const CATEGORIES: { value: string; label: string }[] = [
+    { value: "strength", label: t("categoryStrength") },
+    { value: "cardio", label: t("categoryCardio") },
+    { value: "mobility", label: t("categoryMobility") },
+    { value: "stretching", label: t("categoryStretching") },
+  ];
+
+  const EQUIPMENT: { value: string; label: string }[] = [
+    { value: "bodyweight", label: t("equipmentBodyweight") },
+    { value: "dumbbell", label: t("equipmentDumbbell") },
+    { value: "barbell", label: t("equipmentBarbell") },
+    { value: "machine", label: t("equipmentMachine") },
+    { value: "kettlebell", label: t("equipmentKettlebell") },
+    { value: "band", label: t("equipmentBand") },
+    { value: "cable", label: t("equipmentCable") },
+    { value: "other", label: t("equipmentOther") },
+  ];
 
   const [name, setName] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
@@ -66,12 +68,12 @@ export function CreateExercisePage() {
     const trimmedDescription = description.trim();
 
     if (!trimmedName || !trimmedUrl || !muscleGroup || !category || !equipment) {
-      setError("Todos los campos son obligatorios menos la descripción.");
+      setError(t("requiredFieldsError"));
       return;
     }
 
     if (!isValidUrl(trimmedUrl)) {
-      setError("La URL del video no es válida.");
+      setError(t("invalidVideoUrl"));
       return;
     }
 
@@ -91,7 +93,7 @@ export function CreateExercisePage() {
 
       navigate(-1);
     } catch {
-      setError("No se pudo crear el ejercicio. Intenta de nuevo.");
+      setError(t("errorCreateExercise"));
       setIsSubmitting(false);
     }
   }
@@ -103,30 +105,30 @@ export function CreateExercisePage() {
           type="button"
           className="create-exercise__back"
           onClick={() => navigate(-1)}
-          aria-label="Volver"
+          aria-label={t("back")}
           disabled={isSubmitting}
         >
           <Icon icon="solar:arrow-left-linear" />
         </button>
-        <h1 className="create-exercise__title">Nuevo ejercicio</h1>
+        <h1 className="create-exercise__title">{t("newExercise")}</h1>
         <span className="create-exercise__toolbar-spacer" aria-hidden="true" />
       </header>
 
       <form className="create-exercise__form" onSubmit={handleSubmit}>
         <label className="create-exercise__field">
-          <span className="create-exercise__label">Título</span>
+          <span className="create-exercise__label">{t("exerciseTitle")}</span>
           <input
             className="create-exercise__input"
             type="text"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="Ej. Press de banca con mancuernas"
+            placeholder={t("exerciseTitlePlaceholder")}
             maxLength={120}
           />
         </label>
 
         <label className="create-exercise__field">
-          <span className="create-exercise__label">URL del video</span>
+          <span className="create-exercise__label">{t("exerciseVideoUrl")}</span>
           <input
             className="create-exercise__input"
             type="url"
@@ -138,14 +140,14 @@ export function CreateExercisePage() {
         </label>
 
         <label className="create-exercise__field">
-          <span className="create-exercise__label">Grupo muscular</span>
+          <span className="create-exercise__label">{t("exerciseMuscleGroup")}</span>
           <select
             className="create-exercise__input"
             value={muscleGroup}
             onChange={(event) => setMuscleGroup(event.target.value)}
           >
             <option value="" disabled>
-              Selecciona un grupo muscular
+              {t("selectMuscleGroup")}
             </option>
             {MUSCLE_GROUPS.map((group) => (
               <option key={group.value} value={group.value}>
@@ -156,7 +158,7 @@ export function CreateExercisePage() {
         </label>
 
         <label className="create-exercise__field">
-          <span className="create-exercise__label">Categoría</span>
+          <span className="create-exercise__label">{t("exerciseCategory")}</span>
           <select
             className="create-exercise__input"
             value={category}
@@ -171,14 +173,14 @@ export function CreateExercisePage() {
         </label>
 
         <label className="create-exercise__field">
-          <span className="create-exercise__label">Equipo</span>
+          <span className="create-exercise__label">{t("exerciseEquipment")}</span>
           <select
             className="create-exercise__input"
             value={equipment}
             onChange={(event) => setEquipment(event.target.value)}
           >
             <option value="" disabled>
-              Selecciona el equipo
+              {t("selectEquipment")}
             </option>
             {EQUIPMENT.map((item) => (
               <option key={item.value} value={item.value}>
@@ -189,7 +191,7 @@ export function CreateExercisePage() {
         </label>
 
         <label className="create-exercise__field create-exercise__toggle-field">
-          <span className="create-exercise__label">Ejercicio de tiempo</span>
+          <span className="create-exercise__label">{t("exerciseTimed")}</span>
           <button
             type="button"
             className={`create-exercise__toggle ${isTimed ? "create-exercise__toggle--active" : ""}`}
@@ -203,17 +205,17 @@ export function CreateExercisePage() {
 
         {isTimed && (
           <p className="create-exercise__hint">
-            Este ejercicio se mide por tiempo (ej. plank, sentadilla isométrica).
+            {t("exerciseTimedHint")}
           </p>
         )}
 
         <label className="create-exercise__field">
-          <span className="create-exercise__label">Descripción (opcional)</span>
+          <span className="create-exercise__label">{t("exerciseDescription")}</span>
           <textarea
             className="create-exercise__input create-exercise__textarea"
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder="Describe cómo se realiza el ejercicio"
+            placeholder={t("exerciseDescriptionPlaceholder")}
             rows={4}
             maxLength={500}
           />
@@ -230,7 +232,7 @@ export function CreateExercisePage() {
           className="create-exercise__submit"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Guardando..." : "Guardar ejercicio"}
+          {isSubmitting ? t("saving") : t("saveExercise")}
         </button>
       </form>
     </div>

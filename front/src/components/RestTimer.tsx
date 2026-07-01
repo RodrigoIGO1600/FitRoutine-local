@@ -1,3 +1,5 @@
+import { useTranslation } from "../context/LanguageContext";
+
 type RestTimerProps = {
   remaining: number;
   total: number;
@@ -34,6 +36,7 @@ export function RestTimer({
   onEdit,
   onMinimize,
 }: RestTimerProps) {
+  const { t } = useTranslation();
   const progress = total > 0 ? Math.min(1, Math.max(0, remaining / total)) : 0;
   const dashOffset = CIRCUMFERENCE * (1 - progress);
 
@@ -42,7 +45,7 @@ export function RestTimer({
       className="workout__rest-overlay"
       role="dialog"
       aria-modal="true"
-      aria-label="Tiempo de descanso"
+      aria-label={t("restTimerLabel")}
       onClick={onMinimize}
     >
       <div className="workout__rest-circle" onClick={onSkip}>
@@ -66,11 +69,11 @@ export function RestTimer({
         </svg>
 
         <div className="workout__rest-content">
-          <span className="workout__rest-skip">Toca para saltar</span>
+          <span className="workout__rest-skip">{t("restSkipHint")}</span>
           <span className="workout__rest-label">{label}</span>
 
           <span className="workout__rest-sub">
-            Descanso: {formatRest(total)} min
+            {t("restFormat", { time: formatRest(total) })}
           </span>
 
           <div className="workout__rest-row">
@@ -102,7 +105,7 @@ export function RestTimer({
           <button
             type="button"
             className="workout__rest-edit"
-            aria-label="Editar tiempo de descanso"
+            aria-label={t("restEditHint")}
             onClick={(event) => {
               event.stopPropagation();
               onEdit();
@@ -128,7 +131,7 @@ export function RestTimer({
       {nextExerciseName && (
         <div className="workout__rest-next-preview">
           <div className="workout__rest-next-header">
-            <span className="workout__rest-next-label">Siguiente</span>
+            <span className="workout__rest-next-label">{t("next")}</span>
             <span className="workout__rest-next-arrow">→</span>
           </div>
           <div className="workout__rest-next-card">
@@ -138,7 +141,7 @@ export function RestTimer({
                 href={nextExerciseUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`Ver video de ${nextExerciseName} en YouTube`}
+                aria-label={t("viewVideo", { name: nextExerciseName })}
               >
                 <img
                   className="workout__rest-next-img"
