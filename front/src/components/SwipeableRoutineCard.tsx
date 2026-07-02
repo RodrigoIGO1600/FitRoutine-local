@@ -27,10 +27,12 @@ export function SwipeableRoutineCard({
   const [offset, setOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const startX = useRef(0);
+  const startY = useRef(0);
   const startOffset = useRef(0);
   const offsetRef = useRef(0);
   const isDraggingRef = useRef(false);
   const didSwipeRef = useRef(false);
+  const didScrollRef = useRef(false);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -61,8 +63,10 @@ export function SwipeableRoutineCard({
     }
 
     startX.current = event.clientX;
+    startY.current = event.clientY;
     startOffset.current = offsetRef.current;
     didSwipeRef.current = false;
+    didScrollRef.current = false;
     isDraggingRef.current = true;
     setIsDragging(true);
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -74,9 +78,14 @@ export function SwipeableRoutineCard({
     }
 
     const deltaX = event.clientX - startX.current;
+    const deltaY = event.clientY - startY.current;
 
     if (Math.abs(deltaX) > 8) {
       didSwipeRef.current = true;
+    }
+
+    if (Math.abs(deltaY) > 8) {
+      didScrollRef.current = true;
     }
 
     const nextOffset = Math.min(
@@ -100,7 +109,7 @@ export function SwipeableRoutineCard({
     }
 
     const wasTap =
-      !didSwipeRef.current && Math.abs(offsetRef.current) < 5 && !isRevealed;
+      !didSwipeRef.current && !didScrollRef.current && Math.abs(offsetRef.current) < 5 && !isRevealed;
 
     snapOffset(offsetRef.current);
 
