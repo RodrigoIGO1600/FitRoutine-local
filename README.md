@@ -1,5 +1,7 @@
 <div align="center">
 
+[![Español](https://img.shields.io/badge/🇪🇸-Español-FF4444)](README.es.md)
+
 # 🏋️ FitRoutine
 
 ### Your personal workout routine manager
