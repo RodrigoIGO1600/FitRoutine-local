@@ -25,7 +25,7 @@ Built with **React**, **Express**, **TypeScript**, and **SQLite**.
 - 📋 **Create & manage routines** — Build custom workout routines with ease
 - 🏋️ **Exercise library** — Categorized exercises with muscle groups and equipment
 - ⚙️ **Full customization** — Sets, reps, weight, rest time, and notes per exercise
-- 📱 **Mobile-first design** — Works great on your phone at the gym
+- 📱 **Mobile-first design** — Works great on your phone
 - 📊 **Workout history** — Track your progress over time
 - 🎨 **Multiple themes** — Dark, Light, and Sunset
 - 🌐 **Multi-language** — English and Spanish support
