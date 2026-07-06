@@ -25,7 +25,7 @@ Desarrollada con **React**, **Express**, **TypeScript** y **SQLite**.
 - 📋 **Crear y gestionar rutinas** — Construye rutinas de entrenamiento personalizadas con facilidad
 - 🏋️ **Biblioteca de ejercicios** — Ejercicios categorizados por grupo muscular y equipamiento
 - ⚙️ **Personalización completa** — Series, repeticiones, peso, tiempo de descanso y notas por ejercicio
-- 📱 **Diseño mobile-first** — Funciona perfecto en tu teléfono en el gimnasio
+- 📱 **Diseño mobile-first** — Funciona perfecto en tu teléfono
 - 📊 **Historial de entrenamientos** — Sigue tu progreso con el tiempo
 - 🎨 **Múltiples temas** — Oscuro, Claro y Sunset
 - 🌐 **Multi-idioma** — Soporte para inglés y español
