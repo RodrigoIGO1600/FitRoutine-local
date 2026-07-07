@@ -21,14 +21,16 @@ function formatDuration(totalSeconds: number): string {
   return `${minutes}m ${String(seconds).padStart(2, "0")}s`;
 }
 
-function formatDay(iso: string): string {
+function formatDay(iso: string, lang: string): string {
   const date = new Date(iso);
-  return date.toLocaleDateString("en-US", { weekday: "long" });
+  const locale = lang === "es" ? "es-MX" : "en-US";
+  return date.toLocaleDateString(locale, { weekday: "long" });
 }
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, lang: string): string {
   const date = new Date(iso);
-  return date.toLocaleDateString("en-US", {
+  const locale = lang === "es" ? "es-MX" : "en-US";
+  return date.toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -36,7 +38,7 @@ function formatDate(iso: string): string {
 }
 
 export function HistoryPage() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const navigate = useNavigate();
   const [sessions, setSessions] = useState<WorkoutSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -156,8 +158,8 @@ export function HistoryPage() {
               <li key={session.id} className="history__item">
                 <div className="history__item-info">
                   <div className="history__item-header">
-                    <span className="history__item-day">{formatDay(session.completedAt)}</span>
-                    <span className="history__item-date">{formatDate(session.completedAt)}</span>
+                    <span className="history__item-day">{formatDay(session.completedAt, language)}</span>
+                    <span className="history__item-date">{formatDate(session.completedAt, language)}</span>
                   </div>
                   <p className="history__item-name">{session.routineName}</p>
                   <div className="history__item-meta">
