@@ -80,6 +80,7 @@ export function HomePage() {
     <div className="home">
       <header className="home__header">
         <div className="home__title-group">
+          <img src="/app-logo.png" alt="" className="home__logo" aria-hidden="true" />
           <p className="home__eyebrow">FitRoutine</p>
           <h1 className="home__title">{t("myRoutines")}</h1>
         </div>

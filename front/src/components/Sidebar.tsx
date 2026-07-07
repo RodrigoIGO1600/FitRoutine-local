@@ -35,7 +35,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           aria-label={isOpen ? t("toggleMenu") : t("openMenu")}
           title={isOpen ? t("toggleMenu") : t("openMenu")}
         >
-          <span className="sidebar__logo">FR</span>
+          <img src="/app-logo.png" alt="FitRoutine" className="sidebar__logo" />
         </button>
         {isOpen && (
           <>
