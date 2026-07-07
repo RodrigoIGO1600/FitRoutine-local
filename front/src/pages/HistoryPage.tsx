@@ -21,15 +21,17 @@ function formatDuration(totalSeconds: number): string {
   return `${minutes}m ${String(seconds).padStart(2, "0")}s`;
 }
 
+function formatDay(iso: string): string {
+  const date = new Date(iso);
+  return date.toLocaleDateString("en-US", { weekday: "long" });
+}
+
 function formatDate(iso: string): string {
   const date = new Date(iso);
-
-  return date.toLocaleString("es-MX", {
-    day: "numeric",
+  return date.toLocaleDateString("en-US", {
     month: "short",
+    day: "numeric",
     year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
   });
 }
 
@@ -153,10 +155,11 @@ export function HistoryPage() {
             {sessions.map((session) => (
               <li key={session.id} className="history__item">
                 <div className="history__item-info">
+                  <div className="history__item-header">
+                    <span className="history__item-day">{formatDay(session.completedAt)}</span>
+                    <span className="history__item-date">{formatDate(session.completedAt)}</span>
+                  </div>
                   <p className="history__item-name">{session.routineName}</p>
-                  <p className="history__item-date">
-                    {formatDate(session.completedAt)}
-                  </p>
                   <div className="history__item-meta">
                     <span>{formatDuration(session.durationSeconds)}</span>
                     <span>·</span>
