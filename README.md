@@ -130,6 +130,73 @@ Then open **http://localhost:5173** in your browser.
 
 ---
 
+## 🏋️ How to use FitRoutine
+
+### Step 1: Create exercises
+
+Before building routines, you need exercises in your library.
+
+1. From the home screen, tap the **pencil icon** (✏️) in the top-right corner
+2. Fill in the exercise details:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| **Name** | ✅ | e.g. "Bench Press", "Squats" |
+| **Video URL** | ✅ | Link to a YouTube tutorial |
+| **Muscle Group** | ✅ | Shoulders, Chest, Back, Biceps, Triceps, Forearm, Traps, Legs, Glutes, Core |
+| **Category** | ✅ | Strength, Cardio, Mobility, Stretching |
+| **Equipment** | ✅ | Bodyweight, Dumbbell, Barbell, Machine, Kettlebell, Band, Cable, Other |
+| **Timed** | ❌ | Toggle ON for exercises based on time (e.g. planks, holds) |
+| **Description** | ❌ | Any additional notes |
+
+3. Tap **Save** — you're done!
+
+> 💡 **Tip:** Create all the exercises you need first. It makes building routines much faster.
+
+### Step 2: Create a routine
+
+1. From the home screen, tap the **"+ Create Routine"** button at the bottom
+2. Enter a **name** (e.g. "Push Day", "Full Body") and an optional description
+3. Tap **Create**
+
+### Step 3: Add exercises to your routine
+
+1. Tap on the routine card to open it
+2. Tap **"+ Add Exercise"** at the bottom
+3. Browse or search your exercise library
+4. Select the exercises you want (they get highlighted)
+5. Close the exercise sheet
+
+### Step 4: Configure each exercise
+
+For each exercise in your routine, you can customize:
+
+| Setting | Default | What it does |
+|---------|---------|--------------|
+| **Sets** | 3 | Number of sets to perform |
+| **Reps** | 10 | Repetitions per set (or 1 for timed exercises) |
+| **Duration** | 30s | Time in seconds (only for timed exercises) |
+| **Rest** | 90s | Rest time after completing all sets |
+| **Rest between** | 60s | Rest time between sets |
+
+- **Drag** the exercise cards to reorder them
+- Tap the **edit icon** on any exercise to change its settings
+- Tap **remove** to delete an exercise from the routine
+
+### Step 5: Save your routine
+
+Tap **Save** in the top-right corner. Your routine is ready!
+
+### Step 6: Start a workout
+
+1. From the home screen, tap on your routine
+2. Tap **Start Workout**
+3. Complete each set and mark it as done
+4. The app tracks your duration, total sets, reps, and volume
+5. When finished, your workout is saved to **History**
+
+---
+
 ## 📱 Use from your phone
 
 When the app is running, the start script displays a **QR code** in the terminal.
