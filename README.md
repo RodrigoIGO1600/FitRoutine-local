@@ -2,6 +2,8 @@
 
 [![Español](https://img.shields.io/badge/🇪🇸-Español-FF4444)](README.es.md)
 
+<img src="front/public/app-logo.png" alt="FitRoutine Logo" width="120" />
+
 # 🏋️ FitRoutine
 
 ### Your personal workout routine manager

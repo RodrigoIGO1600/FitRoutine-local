@@ -54,10 +54,7 @@
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: var(--color-accent-yellow);
-  color: #1a1a1a;
-  font-size: 14px;
-  font-weight: 800;
+  object-fit: contain;
   flex-shrink: 0;
 }
 
