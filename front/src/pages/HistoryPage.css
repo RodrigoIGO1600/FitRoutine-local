@@ -163,6 +163,12 @@
   color: var(--color-text-muted);
 }
 
+.history__delete:hover {
+  cursor: pointer;
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+
 .history__delete {
   display: flex;
   align-items: center;

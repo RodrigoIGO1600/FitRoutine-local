@@ -22,15 +22,29 @@ if ! command -v node &> /dev/null; then
     exit 1
 fi
 
+if [ ! -d "node_modules" ]; then
+    echo "  Instalando dependencias del proyecto..."
+    npm install
+fi
+
 if [ ! -d "front/node_modules" ]; then
     echo "  Instalando dependencias del frontend..."
-    cd front && npm install && cd ..
+    (cd front && npm install) || echo "  [ADVERTENCIA] Error al instalar dependencias del frontend"
 fi
 
 if [ ! -d "backend/node_modules" ]; then
     echo "  Instalando dependencias del backend..."
-    cd backend && npm install && cd ..
+    (cd backend && npm install) || echo "  [ADVERTENCIA] Error al instalar dependencias del backend"
 fi
+
+if [ ! -f "backend/.env" ]; then
+    echo "  Creando archivo .env en backend..."
+    cp backend/.env.example backend/.env || echo "  [ADVERTENCIA] No se pudo crear .env"
+fi
+
+echo ""
+echo "  Ejecutando migraciones de la base de datos..."
+(cd backend && npx prisma migrate deploy) || echo "  [ADVERTENCIA] Error en migraciones de Prisma"
 
 echo ""
 echo "  Iniciando backend en puerto 3000..."
@@ -56,7 +70,6 @@ done
 echo "  Abriendo navegador..."
 open http://localhost:5173
 
-cd ..
 node show-url.js
 
 echo ""

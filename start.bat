@@ -24,15 +24,54 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-:: Verificar si las dependencias estan instaladas
+:: Instalar dependencias de la raiz
+if not exist "node_modules" (
+    echo  Instalando dependencias del proyecto...
+    call npm install
+    if %errorlevel% neq 0 (
+        echo  [ADVERTENCIA] Error al instalar dependencias de la raiz
+    )
+)
+
+:: Verificar si las dependencias del frontend estan instaladas
 if not exist "front\node_modules" (
     echo  Instalando dependencias del frontend...
-    cd front && npm install && cd ..
+    pushd front
+    call npm install
+    if %errorlevel% neq 0 (
+        echo  [ADVERTENCIA] Error al instalar dependencias del frontend
+    )
+    popd
 )
+
+:: Verificar si las dependencias del backend estan instaladas
 if not exist "backend\node_modules" (
     echo  Instalando dependencias del backend...
-    cd backend && npm install && cd ..
+    pushd backend
+    call npm install
+    if %errorlevel% neq 0 (
+        echo  [ADVERTENCIA] Error al instalar dependencias del backend
+    )
+    popd
 )
+
+:: Crear archivo .env si no existe
+if not exist "backend\.env" (
+    echo  Creando archivo .env en backend...
+    copy backend\.env.example backend\.env >nul
+    if %errorlevel% neq 0 (
+        echo  [ADVERTENCIA] No se pudo crear .env
+    )
+)
+
+:: Ejecutar migraciones de Prisma
+echo  Ejecutando migraciones de la base de datos...
+pushd backend
+call npx prisma migrate deploy
+if %errorlevel% neq 0 (
+    echo  [ADVERTENCIA] Error en migraciones de Prisma
+)
+popd
 
 echo.
 echo  Iniciando backend en puerto 3000...
@@ -48,9 +87,6 @@ timeout /t 3 /nobreak >nul
 :: Abrir navegador
 echo  Abriendo navegador...
 start http://localhost:5173
-
-:: Mostrar QR
-node show-url.js
 
 echo.
 
