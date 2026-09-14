@@ -1,267 +1,125 @@
 # AGENTS.md
 
-## Project Name
+## Purpose
 
-FitRoutine Local
+This file provides repository-specific instructions for AI-assisted development on FitRoutine. Agents working in this repository should understand existing behavior before modifying it, respect established conventions, keep changes scoped, avoid unnecessary rewrites, and preserve functionality unless the task explicitly changes it.
 
-## Project Goal
+## Project Overview
 
-This is a small local fullstack learning project. The goal is to build a mobile-first web app for creating, saving, editing, and executing workout routines.
+FitRoutine is a local full-stack workout management application. The frontend is a React 19 + TypeScript + Vite application in `front/`, and the backend is an Express 5 + TypeScript API in `backend/`. Data persists in a local SQLite database through Prisma 7.
 
-The project should help the developer practice:
-
-* React frontend development
-* Node.js backend development
-* REST API communication
-* Local persistence with SQLite
-* Basic fullstack architecture
-* Mobile-first UI
-* CRUD operations
-* Clean project structure
-
-This project is intentionally local-only. It should not require paid services, deployment, cloud infrastructure, authentication providers, or external databases.
-
-## Current Project Structure
+## Repository Structure
 
 ```txt
-fitroutine-local/
-  back/
-  front/
-  docs/
-  AGENTS.md
+FitRoutine-local/
+├── backend/
+│   ├── prisma/              # schema.prisma, migrations, seed.ts
+│   ├── src/
+│   │   ├── routes/          # Express route definitions
+│   │   ├── controllers/     # Request/response handling
+│   │   ├── services/        # Business logic and Prisma calls
+│   │   ├── db/              # Prisma client instance
+│   │   ├── generated/       # Generated Prisma client
+│   │   ├── utils/           # Small helpers (param parsing, etc.)
+│   │   ├── app.ts           # Express app setup
+│   │   └── server.ts        # Server entry point
+│   ├── .env.example
+│   └── package.json
+├── front/
+│   ├── src/
+│   │   ├── api/             # API client and endpoint modules
+│   │   ├── components/      # Reusable UI components
+│   │   ├── pages/           # Screen-level page components
+│   │   ├── context/         # Theme and language providers
+│   │   ├── i18n/            # Translation dictionaries
+│   │   ├── types/           # Shared TypeScript types
+│   │   ├── utils/           # Frontend helpers
+│   │   ├── App.tsx          # Router and layout
+│   │   └── main.tsx         # Entry point
+│   ├── .env.example
+│   └── package.json
+├── docs/                    # API contract and architecture notes
+├── start.bat                # Windows quick-start script
+├── start.command            # macOS quick-start script
+├── show-url.js              # Local-network URL helper
+└── package.json             # Root scripts
 ```
 
-## Tech Stack
-
-### Backend
-
-* Node.js
-* Express
-* TypeScript
-* Prisma
-* SQLite
-
-### Frontend
-
-* React
-* Vite
-* TypeScript
-* React Router
-* Tailwind CSS or simple CSS modules
-* Fetch API for HTTP calls
-
-## Local Development Ports
-
-The expected local ports are:
-
-```txt
-Frontend: http://localhost:5173
-Backend:  http://localhost:3000
-API base: http://localhost:3000/api
-```
-
-When testing from a mobile device in the same WiFi network, the frontend should be opened using the laptop's local IP:
-
-```txt
-http://<LOCAL_IP>:5173
-```
-
-The frontend must call the backend using:
-
-```txt
-http://<LOCAL_IP>:3000/api
-```
-
-or an environment variable such as:
-
-```txt
-VITE_API_URL=http://<LOCAL_IP>:3000/api
-```
-
-## Important Local Behavior
-
-The app is local, but the data should persist.
-
-The browser does not own the database. The database lives in the backend as a SQLite file.
-
-Expected flow:
-
-```txt
-Mobile browser or desktop browser
-  -> React frontend
-  -> Express backend
-  -> SQLite database file
-```
-
-If the user creates a routine from the phone while connected to the laptop server, the routine should be saved in the laptop's local SQLite database.
-
-## Development Philosophy
-
-Keep the project small and clear.
-
-Do not add the following unless explicitly requested:
-
-* Login
-* Payments
-* Cloud deployment
-* Firebase
-* Supabase
-* AWS
-* Docker
-* Push notifications
-* Social features
-* AI-generated workouts
-* Complex analytics
-* Complex calendar logic
-
-The MVP should focus on:
-
-* Exercise list
-* Routine creation
-* Adding exercises to routines
-* Editing sets, reps, weight, rest time, and notes
-* Starting a workout session
-* Marking sets as completed
-* Saving workout history
-
-## Backend Coding Guidelines
-
-Use a layered backend structure:
-
-```txt
-routes -> controllers -> services -> database
-```
-
-Responsibilities:
-
-* Routes define URL paths and HTTP methods.
-* Controllers handle request and response.
-* Services contain business logic.
-* Prisma handles database access.
-
-Avoid putting all logic directly inside route files.
-
-Use TypeScript types wherever possible.
-
-Return JSON from all API endpoints.
-
-Use consistent error responses.
-
-Example error response:
-
-```json
-{
-  "error": "Routine not found"
-}
-```
-
-Example success response:
-
-```json
-{
-  "data": {}
-}
-```
-
-## Frontend Coding Guidelines
-
-The frontend should be mobile-first.
-
-Prioritize:
-
-* Simple screens
-* Reusable components
-* Clear loading states
-* Clear error states
-* Empty states
-* Forms with validation
-* Readable code
-
-Suggested frontend folders:
-
-```txt
-src/
-  api/
-  components/
-  pages/
-  hooks/
-  types/
-```
-
-The frontend should not directly access the database. It must communicate with the backend through HTTP requests.
-
-## API Communication Rule
-
-The frontend should use a central API client or shared API URL.
-
-Example:
-
-```ts
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
-```
-
-Avoid hardcoding API URLs in every component.
-
-Good:
-
-```ts
-fetch(`${API_URL}/routines`);
-```
-
-Bad:
-
-```ts
-fetch("http://localhost:3000/api/routines");
-```
-
-## MVP Entities
-
-The initial entities are:
-
-* Exercise
-* Routine
-* RoutineExercise
-* WorkoutSession
-* WorkoutSet
-
-The first backend milestone should only implement:
-
-* Exercise
-* Routine
-* RoutineExercise
-
-Workout sessions and history can be added later.
-
-## Current Backend Status
-
-The backend starts with Express and TypeScript.
-
-The first health endpoint should be:
-
-```txt
-GET /api/health
-```
-
-Expected response:
-
-```json
-{
-  "status": "ok",
-  "message": "FitRoutine API is running"
-}
-```
-
-## When Generating Code
-
-When generating code for this project:
-
-1. Keep it beginner-friendly.
-2. Explain where each file goes.
-3. Avoid overengineering.
-4. Prefer simple REST endpoints.
-5. Keep backend and frontend separated.
-6. Make sure local development still works.
-7. Do not assume deployment.
-8. Do not introduce paid services.
-9. Do not add authentication unless requested.
-10. Keep all data local through SQLite.
+## Architectural Boundaries
+
+- UI components must not contain direct database access.
+- Frontend code must communicate with backend functionality through the established API layer in `front/src/api/`.
+- HTTP routing must remain separate from domain/business logic; keep controllers thin and put logic in services.
+- Database operations must use the existing Prisma layer via `backend/src/db/prisma.ts`.
+- Do not duplicate API calls across components if a centralized client or service already exists.
+- Follow existing patterns before introducing a new abstraction.
+
+## Frontend Guidelines
+
+- Use TypeScript and preserve type safety.
+- Prefer existing reusable components before creating new ones.
+- Follow current CSS Modules conventions; keep styles co-located with components.
+- Maintain responsive/mobile-first behavior.
+- Handle loading, error, and empty states explicitly.
+- Avoid unnecessary global state; use React hooks and local component state where possible.
+- Preserve accessibility semantics already present (labels, roles, aria attributes).
+- Keep UI logic understandable and localized.
+
+## Backend Guidelines
+
+- Define Express routes in `backend/src/routes/` and wire them in `backend/src/app.ts`.
+- Keep controllers focused on request/response handling; delegate business logic to services.
+- Place Prisma queries and domain rules in `backend/src/services/`.
+- Validate request data in controllers or services and return consistent error responses.
+- Return JSON responses using the `{ data: ... }` shape for success and `{ error: "..." }` for errors.
+- Use appropriate HTTP status codes (`200`, `201`, `400`, `404`, `500`).
+- Write asynchronous code with `async/await`.
+- Keep Prisma client imports centralized through `backend/src/db/prisma.ts`.
+
+## Database Guidelines
+
+- Do not manually alter the SQLite database structure without updating `backend/prisma/schema.prisma` and the migration path.
+- Keep schema changes intentional and minimal.
+- Avoid destructive migrations unless explicitly required.
+- Preserve existing data expectations where possible.
+- Run migrations with `npx prisma migrate deploy` and regenerate the client when the schema changes.
+
+## API Guidelines
+
+- Base all API URLs on `import.meta.env.VITE_API_URL ?? "/api"` in the frontend.
+- Keep endpoint modules in `front/src/api/` and reuse `apiGet`, `apiPost`, `apiPut`, and `apiDelete` from `client.ts`.
+- Prefer consistent request/response shapes across endpoints.
+- Handle API errors near the call site and surface them in the UI.
+- Do not invent endpoints that do not exist; check `backend/src/routes/` and `docs/API_CONTRACT.md` before assuming an API contract.
+
+## Scope and Change Discipline
+
+- Read the relevant implementation before making changes.
+- Prefer small, targeted changes over broad rewrites.
+- Do not refactor unrelated code while implementing a task.
+- Do not introduce new dependencies unless they provide a clear benefit and are compatible with the local-only constraint.
+- Reuse existing abstractions and conventions where reasonable.
+- If an existing convention is problematic, identify the issue before replacing it.
+- Preserve backwards compatibility unless the task explicitly requires a breaking change.
+- Never silently remove existing functionality.
+
+## Validation Before Completion
+
+Before considering a task complete:
+
+- Check for TypeScript errors (`npm run build` in `front/`, `npm run build` in `backend/`).
+- Run ESLint where configured (`npm run lint` in `front/`).
+- Verify affected frontend states manually if UI code changed.
+- Verify API behavior when backend code changes.
+- Verify responsive behavior for UI changes.
+- Verify that no unrelated files were modified.
+
+This repository currently has no automated test suite, so running tests is not part of the validation checklist.
+
+## AI-Assisted Development Principles
+
+AI agents are implementation tools, not autonomous owners of the codebase. Proposed changes should remain understandable, reviewable, and consistent with the repository. Generated code must not be accepted solely because it compiles; behavior, maintainability, and architectural fit should also be evaluated.
+
+Do not fabricate APIs, dependencies, or requirements. If a task is ambiguous or a decision could materially affect architecture or behavior, ask or flag the ambiguity before implementing. Explain substantial architectural changes before implementing them.
+
+The project remains intentionally local-only. Do not add authentication, payments, cloud deployment, external databases, push notifications, social features, AI-generated workouts, or complex analytics unless explicitly requested.
