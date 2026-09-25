@@ -6,11 +6,9 @@
 
 # 🏋️ FitRoutine
 
-### Tu gestor de rutinas de entrenamiento personal
+### Aplicación full-stack mobile-first para gestión de entrenamientos
 
-Una aplicación web mobile-first para crear, gestionar y seguir tus rutinas de entrenamiento.
-
-Desarrollada con **React**, **Express**, **TypeScript** y **SQLite**.
+Crea, organiza y sigue rutinas de entrenamiento de forma local.
 
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript)](https://www.typescriptlang.org)
@@ -22,50 +20,117 @@ Desarrollada con **React**, **Express**, **TypeScript** y **SQLite**.
 
 ---
 
-## ✨ Características
+## ✨ Descripción general
 
-- 📋 **Crear y gestionar rutinas** — Construye rutinas de entrenamiento personalizadas con facilidad
-- 🏋️ **Biblioteca de ejercicios** — Ejercicios categorizados por grupo muscular y equipamiento
-- ⚙️ **Personalización completa** — Series, repeticiones, peso, tiempo de descanso y notas por ejercicio
-- 📱 **Diseño mobile-first** — Funciona perfecto en tu teléfono
-- 📊 **Historial de entrenamientos** — Sigue tu progreso con el tiempo
-- 🎨 **Múltiples temas** — Oscuro, Claro y Sunset
-- 🌐 **Multi-idioma** — Soporte para inglés y español
-- 📲 **Acceso por código QR** — Escanea para abrir en tu celular al instante
-- 💾 **Local-first** — Todos los datos se quedan en tu máquina, sin nube necesaria
+FitRoutine es una aplicación full-stack mobile-first para crear, organizar y seguir rutinas de entrenamiento. Está diseñada para ejecutarse localmente permitiendo que dispositivos en la misma red interactúen con la aplicación.
+
+La aplicación permite a los usuarios construir una biblioteca personal de ejercicios, combinar ejercicios en rutinas y ejecutar sesiones de entrenamiento guiadas. Cada ejercicio en una rutina se puede configurar con series, repeticiones o duración, intervalos de descanso y notas. Los entrenamientos iniciados se guardan en un historial local para que los usuarios puedan revisar sesiones anteriores.
+
+FitRoutine se construyó como un proyecto personal full-stack para explorar e implementar comportamiento de aplicación local, desarrollo moderno con React y TypeScript, diseño de API REST, UI responsive mobile-first, persistencia y diseño de base de datos, y uso multi-dispositivo en red local. Es intencionalmente solo-local: la base de datos SQLite vive en el backend, y un teléfono en la misma red WiFi actúa solo como cliente.
 
 ---
 
-## 🚀 Inicio rápido
+## 🚀 Características principales
+
+- 📋 **Creación y gestión de rutinas** — crea, actualiza y elimina rutinas de entrenamiento
+- 🏋️ **Biblioteca de ejercicios** — define ejercicios con grupo muscular, categoría, equipamiento, descripción, URL de video y tipo basado en tiempo/repeticiones
+- ⚙️ **Constructor de rutinas** — agrega ejercicios a las rutinas, configura series/repeticiones/duración/descanso y reordena ejercicios
+- ▶️ **Seguimiento de entrenamiento activo** — inicia una rutina, marca series como completadas, ejecuta temporizadores de descanso y ejercicio, y registra el tiempo transcurrido
+- 📊 **Historial de entrenamientos** — guarda sesiones completadas y revisa tiempo total, series y repeticiones
+- 📱 **UI responsive/mobile-first** — optimizada para teléfono con un diseño que también funciona en escritorio
+- 🎨 **Múltiples temas** — temas oscuro, claro y sunset, persistidos en local storage
+- 🌐 **Localización inglés/español** — cambia el idioma de la interfaz, persistido en local storage
+- 🌐 **Acceso por red local** — ejecuta el backend en `0.0.0.0` y abre el frontend desde otros dispositivos en la misma red
+- 📲 **Acceso por código QR** — la vista de escritorio muestra un código QR que enlaza a la URL del frontend en la red local
+
+---
+
+## 🛠️ Stack tecnológico
+
+### Frontend
+
+- React 19
+- TypeScript
+- Vite
+- React Router 7
+- CSS Modules
+- Iconify React
+- qrcode.react
+
+### Backend
+
+- Node.js
+- Express 5
+- TypeScript
+- tsx
+
+### Base de datos
+
+- SQLite
+- Prisma 7 ORM
+
+---
+
+## 🏗️ Arquitectura
+
+El proyecto se organiza en tres carpetas principales:
+
+```txt
+FitRoutine-local/
+├── backend/          # API Express, esquema Prisma, migraciones
+├── front/            # Frontend React
+└── docs/             # Contrato de API y notas de arquitectura
+```
+
+El frontend y el backend se ejecutan como procesos locales separados durante el desarrollo. El frontend no accede directamente a la base de datos; se comunica con el backend a través de peticiones HTTP. El backend posee toda la lógica de persistencia y almacena los datos en un archivo SQLite local.
+
+```txt
+Navegador (escritorio o móvil)
+  → Frontend React
+  → cliente API del frontend (front/src/api/)
+  → endpoints REST (backend/src/routes/)
+  → controladores (backend/src/controllers/)
+  → servicios (backend/src/services/)
+  → Prisma (backend/src/db/)
+  → SQLite
+```
+
+El estado en el frontend se maneja con hooks y contextos de React. Un `ThemeProvider` y un `LanguageProvider` proveen el estado de tema e idioma al árbol de componentes. El progreso del entrenamiento también se persiste en `localStorage` durante una sesión activa para que sobreviva a recargas de página.
+
+---
+
+## 🔌 API / Flujo de datos
+
+El frontend lee la URL base de la API desde `VITE_API_URL` y usa `/api` como respaldo:
+
+```ts
+export const API_URL = import.meta.env.VITE_API_URL ?? "/api";
+```
+
+Los módulos de endpoints viven en `front/src/api/` y envuelven llamadas `fetch`. El backend expone rutas bajo `/api`:
+
+- `GET /api/health` — verificación de salud
+- `GET /api/network/ip` — devuelve la dirección IPv4 local de la laptop
+- `/api/exercises` — CRUD de ejercicios
+- `/api/routines` — CRUD de rutinas
+- `/api/workout-sessions` — historial de sesiones de entrenamiento
+- `/api/routines/:id/exercises` y `/api/routine-exercises/:id` — gestión de ejercicios en rutinas
+
+Las respuestas usan una forma JSON consistente: `{ data: ... }` para éxito y `{ error: "..." }` para errores.
+
+---
+
+## 💻 Ejecución local
 
 ### Requisitos previos
 
-Solo necesitas **Node.js** instalado en tu computadora.
+- Node.js 18+ (se recomienda LTS)
+- npm
 
-| Requisito | Versión |
-|-----------|---------|
-| [Node.js](https://nodejs.org) | 18+ (LTS recomendado) |
-
-> 💡 Para verificar si tienes Node.js instalado, abre una terminal y ejecuta:
-> ```bash
-> node --version
-> ```
-
-### Instalación
-
-**1. Clona el repositorio**
-
-```bash
-git clone https://github.com/RodrigoIGO1600/FitRoutine-local.git
-cd FitRoutine-local
-```
-
-**2. Ejecuta el script de inicio para tu sistema operativo**
+### Inicio rápido
 
 <details>
 <summary><strong>🪟 Windows</strong></summary>
-
-Haz doble clic en el archivo `start.bat`, o ejecuta en la terminal:
 
 ```bash
 .\start.bat
@@ -76,200 +141,94 @@ Haz doble clic en el archivo `start.bat`, o ejecuta en la terminal:
 <details>
 <summary><strong>🍎 macOS</strong></summary>
 
-Haz doble clic en el archivo `start.command`, o ejecuta en la terminal:
-
 ```bash
 ./start.command
 ```
 
 </details>
 
-<details>
-<summary><strong>🐧 Linux</strong></summary>
-
-```bash
-./start.sh
-```
-
-</details>
-
-¡Listo! El script automáticamente:
-- ✅ Verifica que Node.js esté instalado
-- ✅ Instala todas las dependencias (solo la primera vez)
-- ✅ Configura la base de datos con migraciones de Prisma
-- ✅ Inicia el backend en el puerto `3000`
-- ✅ Inicia el frontend en el puerto `5173`
-- ✅ Abre la aplicación en tu navegador
-- ✅ Muestra un código QR para acceder desde tu celular
+El script de inicio instalará las dependencias, aplicará las migraciones de Prisma, iniciará el backend en el puerto `3000`, iniciará el frontend en el puerto `5173` y abrirá la aplicación en tu navegador.
 
 ### Configuración manual
 
-Si prefieres ejecutar cada paso tú mismo:
-
 ```bash
-# Instalar dependencias del backend
+# Dependencias raíz
+npm install
+
+# Dependencias del backend y base de datos
 cd backend
 npm install
+npx prisma migrate deploy
 
-# Configurar la base de datos
-npx prisma migrate dev
-
-# Volver al directorio raíz
-cd ..
-
-# Instalar dependencias del frontend
-cd front
+# Dependencias del frontend
+cd ../front
 npm install
 
-# Volver al directorio raíz
+# Ejecutar ambos servidores desde la raíz del proyecto
 cd ..
-
-# Iniciar ambos servidores
 npm run dev
 ```
 
-Luego abre **http://localhost:5173** en tu navegador.
+Luego abre [http://localhost:5173](http://localhost:5173).
 
----
+### Puertos y entorno
 
-## 🏋️ Cómo usar FitRoutine
+| Servicio | URL por defecto              |
+|----------|------------------------------|
+| Frontend | http://localhost:5173        |
+| Backend  | http://localhost:3000        |
+| API base | http://localhost:3000/api    |
 
-### Paso 1: Crea ejercicios
+Variables de entorno del backend (ver `backend/.env.example`):
 
-Antes de armar rutinas, necesitas ejercicios en tu biblioteca.
-
-1. Desde la pantalla principal, toca el **ícono de lápiz** (✏️) en la esquina superior derecha
-2. Completa los datos del ejercicio:
-
-| Campo | Requerido | Descripción |
-|-------|-----------|-------------|
-| **Nombre** | ✅ | Ej. "Press de Banca", "Sentadillas" |
-| **URL del video** | ✅ | Enlace a un tutorial de YouTube |
-| **Grupo muscular** | ✅ | Hombros, Pecho, Espalda, Bíceps, Tríceps, Antebrazo, Trapecios, Piernas, Glúteos, Core |
-| **Categoría** | ✅ | Fuerza, Cardio, Movilidad, Estiramiento |
-| **Equipamiento** | ✅ | Peso corporal, Mancuerna, Barra, Máquina, Kettlebell, Banda, Polea, Otro |
-| **Temporal** | ❌ | Activa para ejercicios basados en tiempo (ej. planchas, isométricos) |
-| **Descripción** | ❌ | Notas adicionales |
-
-3. Toca **Guardar** — ¡listo!
-
-> 💡 **Consejo:** Crea todos los ejercicios que necesites primero. Hace que armar rutinas sea mucho más rápido.
-
-### Paso 2: Crea una rutina
-
-1. Desde la pantalla principal, toca el botón **"+ Crear Rutina"** en la parte inferior
-2. Ingresa un **nombre** (ej. "Día de Empuje", "Full Body") y una descripción opcional
-3. Toca **Crear**
-
-### Paso 3: Agrega ejercicios a tu rutina
-
-1. Toca en la tarjeta de la rutina para abrirla
-2. Toca **"+ Agregar Ejercicio"** en la parte inferior
-3. Navega o busca en tu biblioteca de ejercicios
-4. Selecciona los ejercicios que quieras (se resaltan)
-5. Cierra el panel de ejercicios
-
-### Paso 4: Configura cada ejercicio
-
-Para cada ejercicio en tu rutina, puedes personalizar:
-
-| Ajuste | Predeterminado | Qué hace |
-|--------|----------------|----------|
-| **Series** | 3 | Número de series a realizar |
-| **Repeticiones** | 10 | Repeticiones por serie (o 1 para ejercicios temporales) |
-| **Duración** | 30s | Tiempo en segundos (solo para ejercicios temporales) |
-| **Descanso** | 90s | Tiempo de descanso después de completar todas las series |
-| **Descanso entre** | 60s | Tiempo de descanso entre series |
-
-- **Arrastra** las tarjetas de ejercicios para reordenarlas
-- Toca el **ícono de editar** en cualquier ejercicio para cambiar sus ajustes
-- Toca **eliminar** para quitar un ejercicio de la rutina
-
-### Paso 5: Guarda tu rutina
-
-Toca **Guardar** en la esquina superior derecha. ¡Tu rutina está lista!
-
-### Paso 6: Inicia un entrenamiento
-
-1. Desde la pantalla principal, toca en tu rutina
-2. Toca **Iniciar Entrenamiento**
-3. Completa cada serie y márcala como hecha
-4. La app registra tu duración, series totales, repeticiones y volumen
-5. Al terminar, tu entrenamiento se guarda en el **Historial**
-
----
-
-## 📱 Usa desde tu celular
-
-Cuando la aplicación esté en marcha, el script de inicio muestra un **código QR** en la terminal.
-
-1. Asegúrate de que tu celular esté conectado a la **misma WiFi** que tu computadora
-2. Escanea el código QR con la cámara de tu celular
-3. La aplicación se abre en el navegador de tu celular — ¡lista para usar en el gimnasio!
-
----
-
-## 🛠️ Stack tecnológico
-
-| Capa | Tecnología |
-|------|-----------|
-| **Frontend** | React 19, Vite, TypeScript, React Router |
-| **Backend** | Node.js, Express 5, TypeScript |
-| **Base de datos** | SQLite con Prisma ORM |
-| **Estilos** | CSS Modules, diseño mobile-first |
-| **Iconos** | Iconify |
-
----
-
-## 📁 Estructura del proyecto
-
-```
-FitRoutine-local/
-├── backend/
-│   ├── prisma/          # Esquema de base de datos y migraciones
-│   ├── src/
-│   │   ├── routes/      # Endpoints de la API
-│   │   ├── controllers/ # Manejadores de peticiones
-│   │   ├── services/    # Lógica de negocio
-│   │   └── db/          # Cliente de base de datos
-│   └── package.json
-├── front/
-│   ├── src/
-│   │   ├── api/         # Funciones cliente HTTP
-│   │   ├── components/  # Componentes UI reutilizables
-│   │   ├── pages/       # Vistas de páginas
-│   │   ├── context/     # Proveedores de tema e idioma
-│   │   ├── i18n/        # Traducciones
-│   │   └── types/       # Tipos TypeScript
-│   └── package.json
-├── start.bat            # Inicio rápido para Windows
-├── start.command        # Inicio rápido para macOS
-├── start.sh             # Inicio rápido para Linux
-└── package.json         # Scripts raíz
+```txt
+PORT=3000
+DATABASE_URL="file:./dev.db"
 ```
 
+Variables de entorno del frontend (ver `front/.env.example`):
+
+```txt
+VITE_API_URL=http://localhost:3000/api
+```
+
+Para pruebas en red local, configura `VITE_API_URL` con la IP local de la laptop, por ejemplo `http://192.168.1.75:3000/api`, y abre el frontend usando la misma IP.
+
 ---
 
-## 🔧 Scripts disponibles
+## 📝 Notas de desarrollo
 
-| Script | Descripción |
-|--------|-------------|
-| `start.bat` / `start.command` / `start.sh` | Inicia todo con un solo clic |
-| `npm run dev` | Inicia frontend y backend |
-| `npm run dev:back` | Inicia solo el backend |
-| `npm run dev:front` | Inicia solo el frontend |
+- **Diseño responsive mobile-first** — los componentes se estilan principalmente para pantallas de teléfono y se adaptan a escritorio mediante CSS Modules.
+- **Separación de responsabilidades** — la lógica del backend se divide en rutas, controladores y servicios; el acceso a datos del frontend se centraliza en `front/src/api/`.
+- **Acceso a API centralizado** — la URL base de la API se configura una vez en `front/src/api/client.ts` y se reutiliza por todos los módulos de endpoints.
+- **TypeScript en todo el proyecto** — tanto el frontend como el backend usan TypeScript con formas tipadas de datos de API.
+- **Migraciones de Prisma** — los cambios de esquema se rastrean en `backend/prisma/migrations/` y se aplican con `npx prisma migrate deploy`.
+- **Internacionalización personalizada** — las traducciones se almacenan en `front/src/i18n/` y se consumen a través de un hook de contexto de React.
+- **Acceso por red local** — el backend se vincula a `0.0.0.0` y expone `/api/network/ip` para que el frontend pueda mostrar la URL correcta del código QR.
+
+---
+
+## 🤖 Desarrollo asistido por IA
+
+Se utilizaron herramientas de desarrollo asistido por IA durante partes del proceso de implementación e iteración. Los requisitos del proyecto, la arquitectura, las decisiones de integración, la revisión de código, la depuración y las decisiones finales de implementación permanecieron bajo supervisión del desarrollador.
+
+---
+
+## 📊 Estado del proyecto
+
+FitRoutine es un proyecto personal full-stack en desarrollo activo. No es un producto comercial ni un servicio de nivel producción; está destinado al uso local y como ejemplo de portafolio.
 
 ---
 
 ## 📄 Licencia
 
-Este proyecto es de código abierto y está disponible para que cualquiera lo use y aprenda de él.
+Este proyecto es de código abierto y está disponible para que cualquiera lo use y modifique.
 
 ---
 
 <div align="center">
 
-**Creado como proyecto de aprendizaje para practicar desarrollo fullstack**
+**Creado como proyecto personal full-stack de aprendizaje**
 
 ¡Dale una estrella si te fue útil!
 
